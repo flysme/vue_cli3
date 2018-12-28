@@ -1,9 +1,6 @@
 <template>
-  <div id="app">
-    我是Home
-    <div class="" @click="$router.push({name: 'main.container'})">
-      跳转main.aside
-    </div>
+  <div id="navfirst">
+    我是首页概览
   </div>
 </template>
 
@@ -11,7 +8,7 @@
 import API from '@/http'
 console.log(API)
 export default {
-  name: 'home',
+  name: 'navfirst',
   created () {
     API.getTradings().then(res => {
       console.log(res, 'res')

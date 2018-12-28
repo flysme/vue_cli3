@@ -1,21 +1,88 @@
 import Vue from 'vue'
-import Router from 'vue-router'
-Vue.use(Router)
+import VueRouter from 'vue-router'
+import UTILS from '@/utils/utils'
+Vue.use(VueRouter)
 
 
-const router = [
+const route = [
   {
     path:'/',
     name:'home',
     component: ()=>(import('@/views/Home'))
+  },
+  {
+    path:'/register',
+    name:'register',
+    component: ()=>(import('@/views/register'))
+  },
+  {
+    path:'/login',
+    name:'login',
+    component: ()=>(import('@/views/Login'))
+  },{
+    path:'/main/container/',
+    name:'main.container',
+    component: ()=>(import('@/views/Container')),
+    redirect: '/overview',
+    children: [
+        {
+           name:'main.container.overview',
+           path: '/overview',
+           component: ()=>(import('@/views/Containers/overview')),
+           meta: { requiresAuth: true }
+        },
+        {
+           name:'main.container.goods.goodsList',
+           path: '/goodsList',
+           component: ()=>(import('@/views/Containers/goods/goodsList')),
+           meta: { requiresAuth: true }
+        },
+        {
+           name:'main.container.goods.goodsCats',
+           path: '/goodsCats',
+           component: ()=>(import('@/views/Containers/goods/goodsCats')),
+           meta: { requiresAuth: true }
+        },
+        {
+           name:'main.container.order.orderList',
+           path: '/orderList',
+           component: ()=>(import('@/views/Containers/order/orderList')),
+           meta: { requiresAuth: true }
+        },
+        {
+           name:'main.container.order.overview',
+           path: '/orderoverview',
+           component: ()=>(import('@/views/Containers/order/order_overview')),
+           meta: { requiresAuth: true }
+        },
+        {
+           name:'main.container.order.orderevaluate',
+           path: '/orderevaluate',
+           component: ()=>(import('@/views/Containers/order/order_evaluate')),
+           meta: { requiresAuth: true }
+        }
+    ]
   }
 ]
 
-
-
-
-export default new Router({
-  mode: 'history',
+const router = new VueRouter({
+  mode: 'hash',
   routes:[
-  ...router
+  ...route
 ]})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!UTILS.storage.get('username')) {
+      next({
+        path: '/login'
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
+})
+
+export default router
