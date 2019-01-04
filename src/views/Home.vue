@@ -13,9 +13,9 @@ console.log(API)
 export default {
   name: 'home',
   created () {
-    API.getTradings().then(res => {
-      console.log(res, 'res')
-    })
+    // API.getTradings().then(res => {
+    //   console.log(res, 'res')
+    // })
   }
 }
 </script>

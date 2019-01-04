@@ -1,18 +1,43 @@
 <template>
-  <div id="navfirst">
-    我是首页概览
+  <div class="overview">
+    <el-row>
+      <el-col :span="24">
+        <div class="header-main sys-flex">
+            <div class="header-left">
+              <div class="header-store-name">
+                {{storeinfo.storename || '--'}}
+              </div>
+            </div>
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
-import API from '@/http'
-console.log(API)
+import { mapState } from 'Vuex';
 export default {
-  name: 'navfirst',
-  created () {
-    API.getTradings().then(res => {
-      console.log(res, 'res')
+  name: 'overview',
+  computed: {
+    ...mapState('apply', {
+      storeinfo: state => state.store_info,
     })
+  },
+  created () {
+
   }
 }
 </script>
+<style lang="scss">
+    .overview{
+      .header-main{
+        background-color: #FFF;
+        padding:10px;
+        .header-store-name{
+          font-size: 19px;
+          color: #000;
+          font-weight: 450;
+        }
+      }
+    }
+</style>

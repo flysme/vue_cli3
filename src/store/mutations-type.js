@@ -1,1 +1,2 @@
 export const GETGOODSLIST = 'GETGOODSLIST';
+export const SETSTORE_INFO = 'SETSTORE_INFO';

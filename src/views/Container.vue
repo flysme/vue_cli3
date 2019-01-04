@@ -38,7 +38,7 @@
         <el-container>
           <el-header style="text-align: right; font-size: 12px">
             <i class="el-icon-vue-touxiang icon" style="margin-right: 15px"></i>
-            <span>{{username}}</span>
+            <span>{{userinfo.user_name}}</span>
             <el-dropdown trigger="click" @command="siginLogin" size="medium">
               <i class="icon el-icon-setting" style="margin:0 15px"></i>
               <el-dropdown-menu slot="dropdown" >
@@ -68,16 +68,17 @@ export default {
     }
   },
   computed: {
-    username () {
-      return UTILS.storage.get('username')
+    userinfo () {
+      return UTILS.storage.get('userinfo')
     }
   },
   created () {
-    API.getTradings().then(res => {
-      console.log(res, 'res')
-    })
+    this.initPage();
   },
   methods:{
+    initPage () {
+
+    },
     handleOpen (key, keyPath) {
       console.log('key',key, 'keyPath', keyPath);
     },
@@ -117,7 +118,9 @@ export default {
 
     }
   }
-
+  .el-aside {
+    background-color: red;
+  }
   .el-main {
     padding:10px;
     box-sizing: border-box;

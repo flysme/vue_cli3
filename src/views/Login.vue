@@ -58,9 +58,6 @@ export default {
     }
   },
   created () {
-    API.getTradings().then(res => {
-      console.log(res, 'res')
-    })
   },
   methods: {
     submit () {
@@ -70,14 +67,15 @@ export default {
     },
     login () {
       this.isloading = true;
-      setTimeout(()=>{
+      API.login({user_name:this.username,password:this.password}).then(res=>{
+         UTILS.storage.set('userinfo',res.data);
+         this.$router.push({name: 'main.container'})
+         console.log(res,'res');
+      }).catch(err=>{
+         this.$message.error(err.msg);
+      }).finally(()=>{
         this.isloading = false;
-        UTILS.storage.set('username',this.username);
-        this.$router.push({name: 'main.container'})
-      }, 1000);
-      // API.login().then(res => {
-      //
-      // })
+      })
     }
   }
 }

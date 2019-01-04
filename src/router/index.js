@@ -19,7 +19,13 @@ const route = [
     path:'/login',
     name:'login',
     component: ()=>(import('@/views/Login'))
-  },{
+  },
+  {
+    path:'/apply',
+    name:'apply',
+    component: ()=>(import('@/views/apply'))
+  },
+  {
     path:'/main/container/',
     name:'main.container',
     component: ()=>(import('@/views/Container')),
@@ -35,6 +41,12 @@ const route = [
            name:'main.container.goods.goodsList',
            path: '/goodsList',
            component: ()=>(import('@/views/Containers/goods/goodsList')),
+           meta: { requiresAuth: true }
+        },
+        {
+           name:'main.container.goods.editgoods',
+           path: '/editgoods',
+           component: ()=>(import('@/views/Containers/goods/editgoods')),
            meta: { requiresAuth: true }
         },
         {
@@ -73,9 +85,13 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!UTILS.storage.get('username')) {
+    if (!UTILS.storage.get('userinfo')) {
       next({
         path: '/login'
+      })
+    } else if (UTILS.storage.get('userinfo') && !UTILS.storage.get('userinfo')['store_id'] || !UTILS.storage.get('storeinfo')) {
+      next({
+        path: '/apply'
       })
     } else {
       next()

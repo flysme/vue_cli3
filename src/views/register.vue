@@ -53,7 +53,7 @@
 </template>
 
 <script>
-// import API from '@/http'
+import API from '@/http'
 import FORM from '@/utils/form'
 export default {
   name: 'register',
@@ -75,13 +75,14 @@ export default {
     },
     register () {
       this.isloading = true;
-      setTimeout(()=>{
+      API.register({user_name:this.username,password:this.password}).then(()=>{
+         this.$message('注册成功');
+         this.$router.push({name: 'login'})
+      }).catch(err=>{
+         this.$message.error(err.msg);
+      }).finally(()=>{
         this.isloading = false;
-        this.$router.push({name: 'main.container'})
-      }, 1000);
-      // API.login().then(res => {
-      //
-      // })
+      })
     }
   }
 }

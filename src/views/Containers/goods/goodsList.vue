@@ -10,22 +10,14 @@
             placeholder="搜索"
             ></el-input>
             <div class="search-btn">
-              <el-button size="small" type="info" plain @click="searchFilter">筛选</el-button>
+              <el-button size="small" type="primary" plain @click="searchFilter">筛选</el-button>
             </div>
           </div>
           <div class="grid-content search-cats-main sys-flex">
-            <el-dropdown trigger="click" @command="setcatsSearch">
-              <el-button size="small" plain>
-                分类搜索<i class="el-icon-arrow-down el-icon--right"></i>
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="a">黄金糕</el-dropdown-item>
-                <el-dropdown-item command="b">狮子头</el-dropdown-item>
-                <el-dropdown-item command="c">螺蛳粉</el-dropdown-item>
-                <el-dropdown-item command="d" disabled>双皮奶</el-dropdown-item>
-                <el-dropdown-item command="e" divided>蚵仔煎</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+            <el-select v-model="searchcats" placeholder="分类搜索" size="small">
+              <el-option label="区域一" value="shanghai"></el-option>
+              <el-option label="区域二" value="beijing"></el-option>
+            </el-select>
           </div>
         </div>
       </el-col>
@@ -109,13 +101,14 @@
 
 <script>
 import API from '@/http'
-import { mapActions } from 'vuex'
+// import { mapActions } from 'vuex'
 console.log(API)
 export default {
   name: 'goodList',
   data () {
     return {
       multipleSelection: [],
+      searchcats: '',
       disabled: true,
       searchcatsvalue:'',
       searchvalue: '', //搜索关键字
@@ -133,9 +126,9 @@ export default {
     }
   },
   created () {
-    API.getTradings().then(res => {
-      console.log(res, 'res')
-    })
+    // API.getTradings().then(res => {
+    //   console.log(res, 'res')
+    // })
   },
   methods: {
     toggleSelection(rows) {
@@ -167,9 +160,12 @@ export default {
     setcatsSearch (command) {
       this.$message('click on item ' + command);
     },
-    ...mapActions({
-      add: 'goodsList/LOAD_GOODSLIST'  /*新增商品*/
-    })
+    add () {
+      this.$router.push({name: 'main.container.goods.editgoods'});
+    }
+    // ...mapActions({
+    //   add: 'goodsList/LOAD_GOODSLIST'  /*新增商品*/
+    // })
   }
 }
 </script>
