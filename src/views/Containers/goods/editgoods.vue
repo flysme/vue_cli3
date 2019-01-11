@@ -133,7 +133,7 @@
 
 
 
-    <el-row>
+    <el-row v-if="!this.skuSttrList.length">
       <div class="sys-flex form-item">
         <el-col :span="3">
           <div class="demo-input-suffix">
@@ -150,7 +150,7 @@
         </el-col>
       </div>
     </el-row>
-    <el-row>
+    <el-row v-if="!this.skuSttrList.length">
       <div class="sys-flex form-item">
         <el-col :span="3">
           <div class="demo-input-suffix">
@@ -167,7 +167,7 @@
         </el-col>
       </div>
     </el-row>
-    <el-row>
+    <el-row v-if="!this.skuSttrList.length">
       <div class="sys-flex form-item">
         <el-col :span="3">
           <div class="demo-input-suffix">
@@ -236,6 +236,18 @@ export default {
     setAttrValue (idx) {
       console.log(this.skuSttrList,'this.skuSttrList')
       this.skuSttrList[idx]['value'].push({focus:true,name:''});
+    },
+    createTable () {
+      let tableList = [];
+      if (this.skuSttrList.length) {
+        for (let item of this.skuSttrList) {
+          for (let childitem of this.skuSttrList) {
+              tableList.push({
+
+              })
+          }
+        }
+      }
     },
     /*删除sku 规格行*/
     delSkuRow (idx) {
