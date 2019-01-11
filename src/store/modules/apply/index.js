@@ -1,7 +1,6 @@
 import { SETSTORE_INFO } from '@/store/mutations-type'
 import API from '@/http';
 import UTILS from '@/utils/utils';
-import router from '@/router';
 const apply = {
   state: {
     store_info:UTILS.storage.get('storeinfo') || {},
@@ -13,7 +12,7 @@ const apply = {
             commit(SETSTORE_INFO,res.data)
             resolve(res.data)
         }).catch(err=>{
-          resolve(err)
+          reject(err)
         })
       })
     }

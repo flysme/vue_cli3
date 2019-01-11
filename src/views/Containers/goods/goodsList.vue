@@ -15,8 +15,7 @@
           </div>
           <div class="grid-content search-cats-main sys-flex">
             <el-select v-model="searchcats" placeholder="分类搜索" size="small">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+              <el-option :label="cateitem.category_name" :value="cateitem.category_id" :key="index"  v-for="(cateitem,index) in categorysList" ></el-option>
             </el-select>
           </div>
         </div>
@@ -100,9 +99,8 @@
 </template>
 
 <script>
-import API from '@/http'
-// import { mapActions } from 'vuex'
-console.log(API)
+import UTILS from '@/utils/utils'
+import { mapState } from 'vuex'
 export default {
   name: 'goodList',
   data () {
@@ -112,6 +110,7 @@ export default {
       disabled: true,
       searchcatsvalue:'',
       searchvalue: '', //搜索关键字
+      userinfo:UTILS.storage.get('userinfo'),
     }
   },
   computed: {
@@ -123,9 +122,14 @@ export default {
          return item;
       })
       return resetData
-    }
+    },
+    ...mapState('product_category',{
+        // 箭头函数可使代码更简练
+        categorysList: state => state.categorysList
+    })
   },
   created () {
+    this.getCategorys();
     // API.getTradings().then(res => {
     //   console.log(res, 'res')
     // })
@@ -144,6 +148,13 @@ export default {
     selectAllItem(val) {
       this.multipleSelection = val;
       this.disabled = this.multipleSelection.length ? false : true
+    },
+    /*获取商品分类*/
+    getCategorys () {
+      let data = {
+        store_id:this.userinfo.store_id
+      }
+      this.$store.dispatch('product_category/GET_CATEGORYS',data)
     },
     editGoods (current) {
       console.log(current, 'current')

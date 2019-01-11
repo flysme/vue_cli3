@@ -26,6 +26,11 @@ const route = [
     component: ()=>(import('@/views/apply'))
   },
   {
+    path:'/storeList',
+    name:'store.list',
+    component: ()=>(import('@/views/storeList'))
+  },
+  {
     path:'/main/container/',
     name:'main.container',
     component: ()=>(import('@/views/Container')),
@@ -89,7 +94,7 @@ router.beforeEach((to, from, next) => {
       next({
         path: '/login'
       })
-    } else if (UTILS.storage.get('userinfo') && !UTILS.storage.get('userinfo')['store_id'] || !UTILS.storage.get('storeinfo')) {
+    } else if (UTILS.storage.get('userinfo') && !UTILS.storage.get('userinfo')['store_id']) {
       next({
         path: '/apply'
       })

@@ -8,7 +8,7 @@
       </el-col>
     </el-row>
     <el-table
-      :data="tableData"
+      :data="categorysList"
       ref="multipleTable"
       tooltip-effect="dark"
       @selection-change="selectAllItem"
@@ -18,13 +18,13 @@
         width="33">
       </el-table-column>
       <el-table-column
-        prop="name"
+        prop="category_name"
         fixed="left"
         label="分类名称"
         width="200px">
       </el-table-column>
       <el-table-column
-        prop="date"
+        prop="create_time"
         fixed="left"
         label="创建时间"
         width="200px">
@@ -48,46 +48,25 @@
 </template>
 
 <script>
-import API from '@/http'
+import UTILS from '@/utils/utils'
+import { mapState } from 'vuex'
 export default {
   name: 'goodscats',
   data () {
     return {
-      tableData: [{
-        date: '2016-05-03',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-02',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }],
+      userinfo:UTILS.storage.get('userinfo'),
       multipleSelection:[],
       disabled: true,
     }
   },
+  computed: {
+    ...mapState('product_category',{
+        // 箭头函数可使代码更简练
+        categorysList: state => state.categorysList
+    })
+  },
   created () {
-
+    this.getCategorys();
   },
   methods: {
     /*列表全选*/
@@ -95,21 +74,24 @@ export default {
       this.multipleSelection = val;
       this.disabled = this.multipleSelection.length ? false : true
     },
+    getCategorys () {
+      let data = {
+        store_id:this.userinfo.store_id
+      }
+      this.$store.dispatch('product_category/GET_CATEGORYS',data)
+    },
     addcats () {
       this.$prompt('请输入分类名称', '新增分类', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        inputErrorMessage: '邮箱格式不正确'
       }).then(({ value }) => {
-        this.$message({
-          type: 'success',
-          message: '你的邮箱是: ' + value
-        });
+        let data = {
+          cats_name: value,
+          store_id:this.userinfo.store_id
+        }
+        this.$store.dispatch('product_category/SET_CATEGORYS',data)
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        });
+
       });
     }
   }

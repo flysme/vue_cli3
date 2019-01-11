@@ -46,9 +46,6 @@ export default {
       user_id: UTILS.storage.get('userinfo') && UTILS.storage.get('userinfo')['user_id']
     }
   },
-  created () {
-    console.log(UTILS.storage.get('userinfo'))
-  },
   methods: {
     bindapply () {
       if (this.storename =='') {
@@ -61,6 +58,7 @@ export default {
         store_name:this.storename,
         address:this.address,
         user_id:this.user_id,
+        privileges: 3, /*店长注册*/
       }
       this.$store.dispatch('apply/SETSTOREINFO',data).then(res=>{
         let userInfo = UTILS.storage.get('userinfo');
@@ -82,7 +80,6 @@ export default {
     overflow: hidden;
   }
   .apply-title{
-    // margin-top: 110px;
     padding: 10px;
     text-align: center;
     font-size: 18px;

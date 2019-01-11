@@ -92,9 +92,9 @@ const stringify = (data)=>{
 * @params url
 * @params params
 */
-// const fetchGet = (url, data={})=> {
-//   return http.post(url, {params: data})
-// }
+const fetchGet = (url, params={})=> {
+  return http.get(url, {params})
+}
 
 /*
 * post请求
@@ -114,6 +114,8 @@ const URL = {
   login: 'api/login.php', //登录
   register: 'api/register.php', //注册
   applystore: 'api/apply_store.php', //开通店铺
+  create_category: 'api/create_category.php', //新建商品分类
+  get_category: 'api/getProductcategory.php', //获取商品分类
 }
 
 /*
@@ -128,6 +130,12 @@ const API = {
   },
   applyStore: (params)=> {
     return fetchPost(URL.applystore, params)
+  },
+  create_category: (params)=> {
+    return fetchPost(URL.create_category, params)
+  },
+  get_category: (params)=> {
+    return fetchGet(URL.get_category, params)
   }
 }
 
