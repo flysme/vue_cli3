@@ -46,7 +46,6 @@
 
 <script>
 import API from '@/http'
-import UTILS from '@/utils/utils'
 import FORM from '@/utils/form'
 export default {
   name: 'login',
@@ -63,18 +62,19 @@ export default {
     submit () {
       if (FORM.checkmobile(this.username)!=true)return;
       if (this.password=='') return this.$message.error('请输入密码');
-      this.login()
+      this.login();
     },
     login () {
       this.isloading = true;
-      API.login({user_name:this.username,password:this.password}).then(res=>{
-         UTILS.storage.set('userinfo',res.data);
-         this.$router.push({name: 'main.container'})
-         console.log(res,'res');
-      }).catch(err=>{
-         this.$message.error(err.msg);
-      }).finally(()=>{
+      let loading = this.$loading();
+      this.$store.dispatch('login/LOAD_LOGIN',{user_name:this.username,password:this.password}).then(res=>{
         this.isloading = false;
+        loading.close();
+        if (res.store_info && res.store_info.length) {
+          this.$router.push({name: 'main.container'})
+        } else {
+          this.$router.push({name: 'apply'})
+        }
       })
     }
   }

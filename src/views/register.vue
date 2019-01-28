@@ -75,12 +75,14 @@ export default {
     },
     register () {
       this.isloading = true;
+      let loading = this.$loading();
       API.register({user_name:this.username,password:this.password}).then(()=>{
          this.$message('注册成功');
          this.$router.push({name: 'login'})
       }).catch(err=>{
          this.$message.error(err.msg);
       }).finally(()=>{
+        loading.close();
         this.isloading = false;
       })
     }

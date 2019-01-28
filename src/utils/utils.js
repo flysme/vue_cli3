@@ -19,6 +19,16 @@ const UTILS = {
     remove (key) {
       localStorage.removeItem(key);
     }
+  },
+  createTable (arr) {
+      var r = [];
+      (function combine(t, a, l) {
+          if (l == 0) return r.push(t);
+          for (var i = 0; i < a[l-1].length; i++) {
+              combine(t.concat(a[l-1][i]), a, l - 1);
+          }
+      })([], arr, arr.length);
+      return r;
   }
 }
 export default UTILS

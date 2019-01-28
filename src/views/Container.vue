@@ -92,8 +92,12 @@ export default {
           this.$router.push({name: 'main.container.overview'})
         },
         sigin: ()=>{
-          UTILS.storage.remove('username')
-          this.$router.push({name: 'login'})
+          API.loginout().then(res=>{
+            if (res.status==0) {
+              UTILS.storage.remove('username')
+              this.$router.push({name: 'login'})
+            }
+          })
         }
       }
       typeof events[command] =='function' && events[command]()

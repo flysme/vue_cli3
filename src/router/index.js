@@ -50,7 +50,8 @@ const route = [
         },
         {
            name:'main.container.goods.editgoods',
-           path: '/editgoods',
+           path: '/editgoods/:product_id',
+           props: (route) => ({ product_id: route.params.product_id }),
            component: ()=>(import('@/views/Containers/goods/editgoods')),
            meta: { requiresAuth: true }
         },
@@ -93,10 +94,6 @@ router.beforeEach((to, from, next) => {
     if (!UTILS.storage.get('userinfo')) {
       next({
         path: '/login'
-      })
-    } else if (UTILS.storage.get('userinfo') && !UTILS.storage.get('userinfo')['store_id']) {
-      next({
-        path: '/apply'
       })
     } else {
       next()

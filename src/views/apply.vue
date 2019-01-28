@@ -23,10 +23,25 @@
               </div>
             </el-col>
             <el-col :span="16">
+              <el-cascader
+                change-on-select
+                :options="addressList"
+                v-model="address"
+                @change="selectAddress"
+                placeholder="省/市/区"
+              ></el-cascader>
+            </el-col>
+          </div>
+          <div class="sys-flex form-item">
+            <el-col :span="5">
+              <div class="demo-input-suffix">
+              </div>
+            </el-col>
+            <el-col :span="16">
               <el-input
                 size="small"
-                placeholder="省/市/区"
-                v-model="address">
+                placeholder="具体地址"
+                v-model="street">
               </el-input>
             </el-col>
           </div>
@@ -37,16 +52,22 @@
 
 <script>
 import UTILS from '@/utils/utils';
+import addressList from '@/config/address';
 export default {
   name: 'apply',
   data () {
     return {
+      address: ['安徽','铜陵市','铜官区'], //省市区
+      street: '', //具体街道
+      addressList: addressList,
       storename:'',
-      address: '',
       user_id: UTILS.storage.get('userinfo') && UTILS.storage.get('userinfo')['user_id']
     }
   },
   methods: {
+    selectAddress (address) {
+      this.address = address;
+    },
     bindapply () {
       if (this.storename =='') {
         return this.$message.error('请输入店铺名称');
@@ -54,9 +75,13 @@ export default {
       if (this.address =='') {
         return this.$message.error('请输入店铺地址');
       }
+      if (this.street =='') {
+        return this.$message.error('请输入具体地址');
+      }
       let data = {
         store_name:this.storename,
-        address:this.address,
+        address:this.address.join('/'),
+        street:this.street,
         user_id:this.user_id,
         privileges: 3, /*店长注册*/
       }
@@ -86,7 +111,7 @@ export default {
   }
   .apply-main{
     width: 400px;
-    height: 240px;
+    height: 270px;
     flex-direction: column;
     box-sizing: border-box;
     align-items: center;
@@ -96,7 +121,7 @@ export default {
     border-radius: 5px;
     background-color: #fff;
     .el-button{
-      margin-top: 25px;
+      margin-top:5px;
       width: 60%;
       border-radius: 0;
     }
@@ -106,6 +131,15 @@ export default {
       align-items: center;
       .demo-input-suffix{
         font-size: 13px;
+      }
+      .el-cascader{
+        width: 100%;
+        .el-input{
+          input{
+            height: 32px;
+            border-radius: 0;
+          }
+        }
       }
       .el-input{
         input{

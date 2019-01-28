@@ -14,7 +14,7 @@
             </div>
           </div>
           <div class="grid-content search-cats-main sys-flex">
-            <el-select v-model="searchcats" placeholder="分类搜索" size="small">
+            <el-select @change="selectCats" v-model="catesgory_id" placeholder="分类搜索" size="small">
               <el-option :label="cateitem.category_name" :value="cateitem.category_id" :key="index"  v-for="(cateitem,index) in categorysList" ></el-option>
             </el-select>
           </div>
@@ -31,13 +31,14 @@
       ref="multipleTable"
       tooltip-effect="dark"
       @selection-change="selectAllItem"
+      v-loading="loading"
       style="width: 100%">
       <el-table-column
         type="selection"
         width="33">
       </el-table-column>
       <el-table-column
-        prop="image"
+        prop="images"
         label="商品图"
         width="100">
         <template slot-scope="scope">
@@ -45,23 +46,13 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="name"
+        prop="title"
         label="商品名称"
         width="180">
       </el-table-column>
       <el-table-column
-        prop="cats_name"
-        label="商品分类">
-      </el-table-column>
-      <el-table-column
-        prop="price"
-        label="原价"
-        width="100">
-      </el-table-column>
-      <el-table-column
-        prop="price"
-        label="折扣价"
-        width="80">
+        prop="ident_name"
+        label="状态">
       </el-table-column>
       <el-table-column
         prop="num"
@@ -81,8 +72,8 @@
           <span> - </span>
           <el-dropdown @command="setItemhandle" trigger="click" size="mini">
               <el-button  type="text" size="small">更多</el-button>
-              <el-dropdown-menu slot="dropdown" >
-                <el-dropdown-item command="headblock">上架</el-dropdown-item>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="scope.row">{{scope.row.status=='1' ? '下架':'上架'}}</el-dropdown-item>
               </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -90,9 +81,9 @@
     </el-table>
     <el-row>
       <el-col :span="6">
-            <el-button size="mini" :disabled="disabled">上架</el-button>
-            <el-button size="mini" :disabled="disabled">下架</el-button>
-            <el-button size="mini" :disabled="disabled">删除</el-button>
+            <el-button size="mini" :disabled="disabled" @click="changeProducts(1)">上架</el-button>
+            <el-button size="mini" :disabled="disabled" @click="changeProducts(0)">下架</el-button>
+            <el-button size="mini" :disabled="disabled" @click="changeProducts(2)">删除</el-button>
       </el-col>
     </el-row>
   </div>
@@ -105,20 +96,21 @@ export default {
   name: 'goodList',
   data () {
     return {
-      multipleSelection: [],
-      searchcats: '',
+      loading:true,
+      multiProductList: [],
       disabled: true,
       searchcatsvalue:'',
+      catesgory_id:'',
       searchvalue: '', //搜索关键字
       userinfo:UTILS.storage.get('userinfo'),
     }
   },
   computed: {
     resetResponData () {
-      let goodList = this.$store.state.goodsList.goodList;
+      let goodList = this.$store.state.product.goodList;
+      console.log(goodList,'goodList')
       let resetData = goodList.map(item => {
-         item.ident_name = item.status ? '已上架' : '已下架'
-         item.cats_name = item.cats.name
+         item.ident_name = item.status==1 ? '已上架' : '已下架'
          return item;
       })
       return resetData
@@ -130,9 +122,7 @@ export default {
   },
   created () {
     this.getCategorys();
-    // API.getTradings().then(res => {
-    //   console.log(res, 'res')
-    // })
+    this.getProducts();
   },
   methods: {
     toggleSelection(rows) {
@@ -146,26 +136,59 @@ export default {
     },
     /*列表全选*/
     selectAllItem(val) {
-      this.multipleSelection = val;
-      this.disabled = this.multipleSelection.length ? false : true
+      this.multiProductList = val;
+      this.disabled = this.multiProductList.length ? false : true
     },
     /*获取商品分类*/
     getCategorys () {
       let data = {
-        store_id:this.userinfo.store_id
+        store_id:this.userinfo.store_info[0]['_id']
       }
       this.$store.dispatch('product_category/GET_CATEGORYS',data)
     },
-    editGoods (current) {
-      console.log(current, 'current')
+    /*分类搜索*/
+    selectCats () {
+      this.getProducts();
+    },
+    /*获取商品*/
+    getProducts () {
+      let data = {
+        store_id:this.userinfo.store_info[0]['_id'],
+      }
+      if (this.searchvalue!='') {
+        data.product_name=this.searchvalue;
+      }
+      if (this.catesgory_id!='') {
+        data.catesgory_id=this.catesgory_id;
+      }
+      this.loading = true;
+      this.$store.dispatch('product/LOAD_GOODSLIST',data).then(res=>{
+        this.loading = false;
+      });
+    },
+    editGoods (item) {
+      this.$router.push({path: `/editgoods/${item.product_id}`});
     },
     /*点击更多*/
-    setItemhandle(command) {
-      this.$message('click on item ' + command);
+    setItemhandle(item) {
+      let status = item.status==1 ? 0: 1;
+      this.updateProductstatus([item.product_id],status);
+    },
+    /*商品全选操作*/
+    changeProducts (status) {
+      let product_ids = this.multiProductList.map(item=>(item.product_id));
+      this.updateProductstatus(product_ids,status);
+    },
+    /*更新商品状态*/
+    updateProductstatus (product_ids,status) {
+      let data = {status,product_ids};
+      this.$store.dispatch('product/UPDATE_GOODSITEM',data).then(res=>{
+        this.getProducts();
+      });
     },
     /*商品名称搜索*/
     searchFilter () {
-      console.log(this.searchvalue, 'searchvalue')
+      this.getProducts();
     },
     /*商品分类搜索*/
     setcatsSearch (command) {

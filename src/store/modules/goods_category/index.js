@@ -6,25 +6,58 @@ const product_category = {
     categorysList:[]
   },
   actions: {
+    /*新增分类*/
     SET_CATEGORYS ({ commit },data) {
-      API.create_category(data).then(res=>{
-        // if (res.status == 0) {
-        //
-        // }
-        console.log(res,'res',commit)
+      return new Promise((resolve,reject)=>{
+        API.create_category(data).then(res=>{
+          if (res.status == 0) {
+            resolve();
+          } else {
+            reject(res);
+          }
+        })
       })
     },
+    /*获取分类*/
     GET_CATEGORYS ({ commit },data) {
-      API.get_category(data).then(res=>{
-        if (res.status == 0) {
-          commit(GETCATEGORYS,res.data.categorys)
-        }
+      return new Promise((resolve,reject)=>{
+        API.get_category(data).then(res=>{
+          if (res.status == 0) {
+            commit(GETCATEGORYS,res.data.categorys);
+            resolve(res.data.categorys);
+          } else {
+            reject(res);
+          }
+        })
+      })
+    },
+    /*修改分类*/
+    UPDATE_CATEGORYS ({commit},data) {
+      return new Promise((resolve,reject)=>{
+        API.update_category(data).then(res=>{
+          if (res.status == 0) {
+            resolve();
+          } else {
+            reject();
+          }
+        })
+      })
+    },
+    /*删除分类*/
+    DELETE_CATEGORYS ({ commit }, catesgory_id) {
+      return new Promise((resolve,reject)=>{
+        API.delete_category({catesgory_id}).then(res=>{
+          if (res.status == 0) {
+            resolve();
+          } else {
+            reject();
+          }
+        })
       })
     }
   },
   mutations: {
     [GETCATEGORYS] (state, data) {
-      console.log(data,'data')
       state.categorysList = data;
     }
   },
