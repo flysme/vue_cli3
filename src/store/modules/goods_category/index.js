@@ -8,6 +8,7 @@ const product_category = {
   actions: {
     /*新增分类*/
     SET_CATEGORYS ({ commit },data) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.create_category(data).then(res=>{
           if (res.status == 0) {
@@ -20,6 +21,7 @@ const product_category = {
     },
     /*获取分类*/
     GET_CATEGORYS ({ commit },data) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.get_category(data).then(res=>{
           if (res.status == 0) {
@@ -33,6 +35,7 @@ const product_category = {
     },
     /*修改分类*/
     UPDATE_CATEGORYS ({commit},data) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.update_category(data).then(res=>{
           if (res.status == 0) {
@@ -45,6 +48,7 @@ const product_category = {
     },
     /*删除分类*/
     DELETE_CATEGORYS ({ commit }, catesgory_id) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.delete_category({catesgory_id}).then(res=>{
           if (res.status == 0) {

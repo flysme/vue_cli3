@@ -164,8 +164,8 @@ const fetchPut = (url, data={})=> {
 * @params url
 * @params data
 */
-const fetchDelete = (url, params={})=> {
-  return http.delete(url, {params})
+const fetchDelete = (url, data={})=> {
+  return http.delete(url, {data:stringify(data)})
 }
 
 /*
@@ -176,6 +176,8 @@ const URL = {
   loginout: 'api/loginout.php', //退出登录
   register: 'api/register.php', //注册
   applystore: 'api/apply_store.php', //开通店铺
+  switchUserStore: 'api/switchUserStore.php', //切换店铺
+  getuserStore: 'api/getuserStore.php', //获取店铺状态
   create_category: 'api/edit_category.php', //新建商品分类
   get_category: 'api/getProductcategory.php', //获取商品分类
   create_products: 'api/create_product.php', //创建商品
@@ -200,6 +202,12 @@ const API = {
   },
   applyStore: (params)=> {
     return fetchPost(URL.applystore, params)
+  },
+  switchUserStore: (params)=> {
+    return fetchPost(URL.switchUserStore, params)
+  },
+  getuserStore :()=> {
+    return fetchGet(URL.getuserStore)
   },
   create_category: (params)=> {
     return fetchPost(URL.create_category, params)

@@ -29,7 +29,7 @@
     <el-row :gutter="20" >
       <el-col :span="16" :offset="4">
         <div class="grid-content">
-          <el-button type="primary" :loading="isloading" @click="submit">登录</el-button>
+          <el-button type="primary" :disabled="isDisabled" :loading="isloading" @click="submit">登录</el-button>
         </div>
       </el-col>
     </el-row>
@@ -37,7 +37,7 @@
       <el-col :span="20" :offset="7">
         <div class="nav-login-main f-7">
             <span>没有账号?</span>
-            <span class="btn-login" @click="$router.push({name: 'register'})">注册</span>
+            <span class="btn-login"  @click="$router.push({name: 'register'})">注册</span>
         </div>
       </el-col>
     </el-row>
@@ -45,7 +45,6 @@
 </template>
 
 <script>
-import API from '@/http'
 import FORM from '@/utils/form'
 export default {
   name: 'login',
@@ -58,6 +57,13 @@ export default {
   },
   created () {
   },
+  computed:{
+    isDisabled () {
+      let checkmobile = FORM.checkmobile(this.username)==true,
+          checkpwd = FORM.checkpwd(this.password)==true;
+      return !(checkmobile && checkpwd);
+    }
+  },
   methods: {
     submit () {
       if (FORM.checkmobile(this.username)!=true)return;
@@ -68,19 +74,20 @@ export default {
       this.isloading = true;
       let loading = this.$loading();
       this.$store.dispatch('login/LOAD_LOGIN',{user_name:this.username,password:this.password}).then(res=>{
-        this.isloading = false;
-        loading.close();
         if (res.store_info && res.store_info.length) {
           this.$router.push({name: 'main.container'})
         } else {
           this.$router.push({name: 'apply'})
         }
+      }).finally(()=>{
+        loading.close();
+        this.isloading = false;
       })
     }
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #login{
     width: 500px;
     height: 300px;

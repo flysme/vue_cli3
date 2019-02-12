@@ -10,6 +10,7 @@ const goodsList = {
     /*获取商品*信息*/
     LOAD_GOODSLIST ({ commit }, data) {
       return new Promise((resolve,reject)=>{
+        console.log(commit);
         API.get_products(data).then(res=>{
           if (res.status == 0) {
             commit(GETGOODSLIST,res.data.products);
@@ -22,6 +23,7 @@ const goodsList = {
     },
     /*生成新的商品*/
     CREATE_GOODS ({ commit }, data) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.create_products(data).then(res=>{
           if (res.status == 0) {
@@ -34,6 +36,7 @@ const goodsList = {
     },
     /*编辑商品*/
     EDIT_GOODS ({ commit }, data) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.editProducts(data).then(res=>{
           if (res.status == 0) {
@@ -46,6 +49,7 @@ const goodsList = {
     },
     /*更新商品信息*/
     UPDATE_GOODSITEM ({ commit }, data) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.updateProductStatus(data).then(res=>{
           if (res.status == 0) {
@@ -58,6 +62,7 @@ const goodsList = {
     },
     /*删除商品*/
     DELETE_GOODSITEM ({ commit }, catesgory_id) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.deleteProductStatus(catesgory_id).then(res=>{
           if (res.status == 0) {
@@ -70,11 +75,14 @@ const goodsList = {
     },
     /*获取商品详情*/
     GET_PRODUCT_DETAILS ({commit},data) {
+      console.log(commit);
       return new Promise((resolve,reject)=>{
         API.get_products_details(data).then(res=>{
           if (res.status == 0) {
             resolve(res.data);
             commit(GETGOODSDETAILS,res.data);
+          } else {
+            reject();
           }
         })
       })

@@ -41,18 +41,19 @@
               <el-input
                 size="small"
                 placeholder="具体地址"
-                v-model="street">
+                v-model="street"
+                @focus="showMap=true">
               </el-input>
             </el-col>
           </div>
+          <search-map v-if="showMap" @closeDialog="closeDialog" :city="address[1]"></search-map>
         <el-button size="medium" type="primary" @click="bindapply">立即开通</el-button>
       </div>
   </div>
 </template>
-
 <script>
-import UTILS from '@/utils/utils';
 import addressList from '@/config/address';
+import searchMap from '@/components/map';
 export default {
   name: 'apply',
   data () {
@@ -61,10 +62,18 @@ export default {
       street: '', //具体街道
       addressList: addressList,
       storename:'',
-      user_id: UTILS.storage.get('userinfo') && UTILS.storage.get('userinfo')['user_id']
+      location:'',
+      showMap:false
     }
   },
   methods: {
+    closeDialog (location) {
+      this.showMap = false;
+      if (location) {
+        this.location = location;
+        this.street = location.name;
+      }
+    },
     selectAddress (address) {
       this.address = address;
     },
@@ -82,20 +91,21 @@ export default {
         store_name:this.storename,
         address:this.address.join('/'),
         street:this.street,
-        user_id:this.user_id,
+        geo:[this.location.lng,this.location.lat],
         privileges: 3, /*店长注册*/
       }
-      this.$store.dispatch('apply/SETSTOREINFO',data).then(res=>{
-        let userInfo = UTILS.storage.get('userinfo');
-        userInfo.store_id = res.store_id;
-        UTILS.storage.set('userinfo',userInfo);
+      this.$store.dispatch('apply/SETSTOREINFO',data).then(()=>{
+        this.$store.dispatch('login/GET_STORE_INFO');
         this.$router.push({name: 'main.container.overview'})
       });
     }
+  },
+  components: {
+    searchMap
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #apply{
     width: 100%;
     height: 100vh;
@@ -149,6 +159,10 @@ export default {
       &:last-child {
         margin-bottom:120px;
       }
+    }
+    #container{
+      width: 200px;
+      height: 100px;
     }
   }
 </style>

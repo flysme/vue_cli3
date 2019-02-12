@@ -1,17 +1,11 @@
 <template>
   <div class="upLoad">
     <div class="sys-flex upload-main">
-      <el-upload
-        class="avatar-uploader sys-flex"
-        multiple
-        :limit="1"
-        :on-exceed="handleExceed"
-        action="http://www.vuetext.com:8083/api/upLoad.php"
-        :show-file-list="false"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
-        <i class="el-icon-plus avatar-uploader-icon"></i>
-      </el-upload>
+      <div class="image-main sys-flex" v-if="showImg && !imageUrl.length">
+          <div class="picture rel">
+              <img :src="showImg">
+          </div>
+      </div>
       <div class="image-main sys-flex" v-if="imageUrl.length">
           <div class="picture rel"  v-for="(item,index) in imageUrl"   :key="index">
               <div class="mask abs sys-flex" @click="deleteImg(index)">
@@ -20,11 +14,22 @@
               <img :src="item">
           </div>
       </div>
+      <el-upload
+        ref="upload"
+        class="avatar-uploader sys-flex"
+        :on-exceed="handleExceed"
+        :limit="1"
+        action="https://www.20130510.cn/api/upLoad.php"
+        :show-file-list="false"
+        :on-success="handleAvatarSuccess"
+        :before-upload="beforeAvatarUpload">
+        <i class="el-icon-plus avatar-uploader-icon"></i>
+      </el-upload>
     </div>
   </div>
 </template>
-
 <script>
+import config from '@/config/config'
 export default {
   name: 'upLoad',
   data() {
@@ -32,10 +37,21 @@ export default {
         imageUrl: []
       };
   },
+  props:{
+    img:{
+      type:String,
+      default:''
+    }
+  },
+  computed:{
+    showImg () {
+      return this.img ? config.Imghost + this.img : ''
+    }
+  },
   methods: {
     handleAvatarSuccess(res, file) {
-      console.log(URL.createObjectURL(file.raw),'URL.createObjectURL(file.raw)');
       this.imageUrl.push(URL.createObjectURL(file.raw));
+      this.$emit('success',res);
     },
     beforeAvatarUpload(file) {
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -45,9 +61,11 @@ export default {
       return isLt2M;
     },
     handleExceed (files, fileList) {
+      console.log(fileList,'fileList')
       this.$message.warning(`最多选择1张`);
     },
     deleteImg (idx) {
+      this.$refs.upload.clearFiles();
       this.imageUrl.splice(idx,1);
     }
   }
@@ -87,7 +105,7 @@ export default {
       .picture{
         width: 58px;
         height: 58px;
-        margin:0 0 0 10px;
+        margin:0 10px 0 0;
         border:1px solid #efefef;
         &>img{
           width: 58px;

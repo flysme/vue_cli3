@@ -45,7 +45,7 @@
           </div>
         </el-col>
         <el-col :span="20">
-          <upLoad></upLoad>
+          <upLoad @success="uploadsuccess" :img="products_image"></upLoad>
         </el-col>
       </div>
     </el-row>
@@ -109,7 +109,7 @@
               </el-input>
               <div class="attr-n-line"></div>
               <div class="attr-value-main sys-flex">
-                 <div v-if="attr.value.length" v-for="(items,idx) in attr.value" :key="idx">
+                 <div class="rel"  v-if="attr.value.length" v-for="(items,idx) in attr.value" :key="idx">
                    <el-input
                      width="10px"
                      size="mini"
@@ -117,6 +117,7 @@
                      autofocus="true"
                      v-model="attr.value[idx]">
                    </el-input>
+                   <i class="el-icon-vue-xianshi_quxiaotianchong abs del-icon" @click="delSkuRowVal(index,idx)"></i>
                  </div>
                   <div class="append-attr f-6" @click="setAttrValue(index)">
                       +添加
@@ -153,8 +154,8 @@
                 </div>
             </div>
             <div class="sku-table-body  sys-flex" v-for="(item,index) in newtableList" :key="index">
-                <div class="sku-t-td" :style="compuWidth(item)" v-for="(current,indx) in item" :key="indx" >
-                    <el-input type="number" min="1" v-if="current.k=='num' || current.k=='price'" v-model="current.v"></el-input>
+                <div class="sku-t-td" :style="compuWidth(item)" v-for="(current,idx) in item" :key="idx" >
+                    <el-input type="number" min="1" v-if="current.k=='num' || current.k=='price'" @blur="checkSkuReg(index,idx,current.v)" v-model="current.v"></el-input>
                     <span v-else>{{current.v}}</span>
                 </div>
             </div>
@@ -165,7 +166,7 @@
     <el-row>
       <el-col :span="24">
         <div class="btn-save">
-           <el-button type="primary"  size="mini" @click="saveGoodInfo">保存</el-button>
+           <el-button type="primary"  size="mini" :disabled="!storeStatus.canhandle" @click="saveGoodInfo">保存</el-button>
         </div>
       </el-col>
     </el-row>
@@ -182,7 +183,7 @@ export default {
       userinfo:UTILS.storage.get('userinfo'),
       products_name:'',
       products_desc:'',
-      products_image:[],
+      products_image:'',
       products_unit:'',
       category_id:'',
       cats_name:'',
@@ -206,6 +207,10 @@ export default {
   computed: {
     ...mapState('product_category',{
         categorysList: state => state.categorysList
+    }),
+    ...mapState('login',{
+        storeStatus:state => state.storeStatus,
+        currentStore: state => state.currentStore
     }),
     /*最大sku规格设置为三层*/
     isDisabled () {
@@ -232,8 +237,9 @@ export default {
         this.headData.push(...this.exthead)
         let newtable = ( table.length && UTILS.createTable(table) ) || [];
         if (newtable.length) {
-          let ev = ['',''];
+          let ev = [0,0];
            let new_t = newtable.map(i =>(i = [...(i.reverse()),...ev]))
+           this.newtableList = [];
            new_t.forEach((current,index)=>{
              let value = [];
              this.headData.forEach((item,idx)=>{
@@ -244,12 +250,11 @@ export default {
                })
              })
              // 属性值存在时进行更新
-             this.newtableList[index] = value;
+             this.$set(this.newtableList,index,value);
            })
         }
         if (this.product_id) {
           this.updateSkuList();
-          console.log('update-----',this.newtableList)
         }
       },
       deep: true    //深度监听
@@ -272,10 +277,12 @@ export default {
         if (res.length >=2) {
           this.resetDetailData(res);
         }
+      }).catch(()=>{
+        loading.close();
       });
     },
     /*更新sku规格列表*/
-    updateSkuList (newtableList) {
+    updateSkuList () {
       let skus = this.details.skus;
       if (!this.newtableList.length)return;
       this.newtableList.forEach(item=>{
@@ -296,12 +303,18 @@ export default {
         }
       })
     },
+    uploadsuccess (res) {
+      if (res.data.file) {
+        this.products_image = res.data.file;
+      }
+      console.log(res);
+    },
     /*处理详情数据*/
     resetDetailData ([categorys,details]) {
-      console.log(details,'details',categorys,'categorys');
       this.details = details;
       this.products_name = details.title;
       this.products_desc = details.desc;
+      this.products_image = details.img;
       this.category_id = details.category_id;
       this.products_unit = details.product_unit;
       this.cats_name = categorys.filter(item=>(item.category_id == details.category_id))[0].category_name;
@@ -316,7 +329,7 @@ export default {
     getCategorys () {
       return new Promise((resolve,reject)=>{
         let data = {
-          store_id:this.userinfo.store_info[0]['_id']
+          store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id']
         }
         this.$store.dispatch('product_category/GET_CATEGORYS',data)
         .then(res=>{
@@ -345,7 +358,7 @@ export default {
     /*设置sku*/
     setSku () {
       if (this.skuSttrList.length >= 3)return
-      this.skuSttrList.push({key:'',  value:['']})
+      this.skuSttrList.push({key:'',  value:['']});
     },
     /*设置sku 属性值*/
     setAttrValue (idx) {
@@ -353,6 +366,11 @@ export default {
         return this.$message.error('请填写属性名')
       }
       this.$set(this.skuSttrList[idx]['value'],this.skuSttrList[idx]['value'].length,'');
+    },
+    /*删除属性值*/
+    delSkuRowVal(p_index,c_index){
+      this.skuSttrList[p_index]['value'].splice(c_index,1);
+      this.$set(this.skuSttrList,p_index,this.skuSttrList[p_index]);
     },
     /*删除sku 规格行*/
     delSkuRow (idx) {
@@ -365,6 +383,25 @@ export default {
     selectcates (e) {
       this.category_id = e;
     },
+    /*验证规格值是都为空*/
+    checkSkuValue () {
+      let flag = true;
+      console.log(this.newtableList,'this.newtableList')
+      this.newtableList.forEach(item=>{
+          item.forEach(currentItem=>{
+              if (flag && currentItem.k=="num" && (currentItem.v=='' || currentItem.v<=0)) {
+                flag = 'sku库存不能为空或小于0';
+              }
+              if (currentItem.k=="price" && (currentItem.v=='' || currentItem.v<=0)) {
+                flag = 'sku价格不能为空或小于0';
+              }
+          })
+      })
+      return flag;
+    },
+    checkSkuReg (c_index,r_index,value) {
+      console.log(c_index,r_index,value);
+    },
     // 保存商品信息
     saveGoodInfo () {
       if (this.products_name == '') {
@@ -373,17 +410,26 @@ export default {
       if (this.products_desc == '') {
         return this.$message.error('请填写商品描述');
       }
+      if (this.products_image == '') {
+        return this.$message.error('请填写商品主图');
+      }
       if (this.products_unit == '') {
         return this.$message.error('请填写库存单位');
       }
+      if (!this.newtableList.length) {
+        return this.$message.error('请填写sku');
+      }
       if (this.category_id == '') {
         return this.$message.error('请填写商品分类');
+      }
+      if (this.checkSkuValue()!=true) {
+        return this.$message.error(this.checkSkuValue());
       }
       let params = {
         products_name: this.products_name,
         products_desc: this.products_desc,
         products_image: this.products_image,
-        store_id: this.userinfo.store_info[0]['_id'],
+        store_id: this.userinfo.store_id || this.userinfo.store_info[0]['_id'],
         attributes: this.skuSttrList,
         products_unit: this.products_unit,
         category_id: this.category_id,
@@ -394,7 +440,7 @@ export default {
         params.product_id = this.product_id;
         moduleAction = 'product/EDIT_GOODS';
       }
-       this.$store.dispatch(moduleAction,params).then(res=>{
+       this.$store.dispatch(moduleAction,params).then(()=>{
          this.$message.success('商品发布成功');
          this.$router.push({name:'main.container.goods.goodsList'});
       }).catch((res)=>{
@@ -482,6 +528,10 @@ export default {
              flex-wrap: wrap;
              div{
                margin:3px 3px 3px 0;
+               .del-icon{
+                 top: -5px;
+                 right: -1px;
+               }
              }
              .el-input{
                input{

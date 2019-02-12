@@ -26,6 +26,11 @@ const route = [
     component: ()=>(import('@/views/apply'))
   },
   {
+    path:'/switchstore',
+    name:'switch.store',
+    component: ()=>(import('@/views/Containers/switchstore'))
+  },
+  {
     path:'/storeList',
     name:'store.list',
     component: ()=>(import('@/views/storeList'))
@@ -44,38 +49,44 @@ const route = [
         },
         {
            name:'main.container.goods.goodsList',
-           path: '/goodsList',
+           path: '/goods/goodsList',
            component: ()=>(import('@/views/Containers/goods/goodsList')),
            meta: { requiresAuth: true }
         },
         {
            name:'main.container.goods.editgoods',
-           path: '/editgoods/:product_id',
+           path: '/goods/editgoods/:product_id',
            props: (route) => ({ product_id: route.params.product_id }),
            component: ()=>(import('@/views/Containers/goods/editgoods')),
            meta: { requiresAuth: true }
         },
         {
+           name:'main.container.goods.addgoods',
+           path: '/goods/addgoods',
+           component: ()=>(import('@/views/Containers/goods/editgoods')),
+           meta: { requiresAuth: true }
+        },
+        {
            name:'main.container.goods.goodsCats',
-           path: '/goodsCats',
+           path: '/goods/goodsCats',
            component: ()=>(import('@/views/Containers/goods/goodsCats')),
            meta: { requiresAuth: true }
         },
         {
            name:'main.container.order.orderList',
-           path: '/orderList',
+           path: '/order/orderList',
            component: ()=>(import('@/views/Containers/order/orderList')),
            meta: { requiresAuth: true }
         },
         {
            name:'main.container.order.overview',
-           path: '/orderoverview',
+           path: '/order/orderoverview',
            component: ()=>(import('@/views/Containers/order/order_overview')),
            meta: { requiresAuth: true }
         },
         {
            name:'main.container.order.orderevaluate',
-           path: '/orderevaluate',
+           path: '/order/orderevaluate',
            component: ()=>(import('@/views/Containers/order/order_evaluate')),
            meta: { requiresAuth: true }
         }

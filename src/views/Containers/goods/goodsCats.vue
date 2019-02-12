@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="24">
          <div class="btn-add sys-flex">
-           <el-button size="small" type="primary" @click="addcats">新增分类</el-button>
+           <el-button size="small" type="primary" :disabled="!storeStatus.canhandle" @click="addcats">新增分类</el-button>
          </div>
       </el-col>
     </el-row>
@@ -48,12 +48,12 @@
     </el-table>
     <el-row>
       <el-col :span="2">
-            <el-button size="mini" :disabled="disabled">删除</el-button>
+            <el-button size="mini" :disabled="disabled" @click="deletegoodCates">删除</el-button>
       </el-col>
     </el-row>
     <el-dialog title="新增分类" width="40%" :visible.sync="dialogVisible">
       <el-form :model="form">
-        <el-form-item label="分类名称" :label-width="formLabelWidth">
+        <el-form-item label="名称:" :label-width="formLabelWidth">
           <el-input placeholder="请输入分类名称" v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -79,12 +79,15 @@ export default {
       form: {
         name: ''
       },
-      formLabelWidth: '100px'
+      formLabelWidth: '60px'
     }
   },
   computed: {
     ...mapState('product_category',{
         categorysList: state => state.categorysList
+    }),
+    ...mapState('login',{
+        storeStatus:state => state.storeStatus,
     })
   },
   created () {
@@ -99,10 +102,10 @@ export default {
     /*获取分类列表*/
     getCategorys () {
       let data = {
-        store_id:this.userinfo.store_info[0]['_id']
+        store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id']
       }
       this.loading = true;
-      this.$store.dispatch('product_category/GET_CATEGORYS',data).then(res=>{
+      this.$store.dispatch('product_category/GET_CATEGORYS',data).then(()=>{
         this.loading = false;
       }).catch(e=>{
         this.loading = false;
@@ -119,7 +122,7 @@ export default {
           cats_name: value,
           catesgory_id
         }
-        this.$store.dispatch('product_category/UPDATE_CATEGORYS',data).then(res=>{
+        this.$store.dispatch('product_category/UPDATE_CATEGORYS',data).then(()=>{
           this.getCategorys();
         })
       }).catch((e) => {
@@ -130,6 +133,7 @@ export default {
     addcats () {
       this.dialogVisible = true;
     },
+    /*新增分类*/
     submit () {
       if (this.form.name==''){
         return this.$message.error('请输入分类名称');
@@ -137,10 +141,10 @@ export default {
       console.log(this.form.name,'this.form.name')
       let data = {
         cats_name: this.form.name,
-        store_id:this.userinfo.store_info[0]['_id']
+        store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id']
       }
       this.dialogVisible = false;
-      this.$store.dispatch('product_category/SET_CATEGORYS',data).then(res=>{
+      this.$store.dispatch('product_category/SET_CATEGORYS',data).then(()=>{
         this.getCategorys();
       })
     },
@@ -151,17 +155,21 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('product_category/DELETE_CATEGORYS',catesgory_id).then(res=>{
+        this.$store.dispatch('product_category/DELETE_CATEGORYS',catesgory_id).then(()=>{
           this.getCategorys();
         })
       }).catch(() => {
         console.log('取消')
      });
+    },
+    /*删除选中分类*/
+    deletegoodCates () {
+
     }
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #goodscats{
     background-color: #FFF;
     padding:10px;
@@ -175,9 +183,9 @@ export default {
     }
     .dialog-footer{
       width: 100%;
-      // text-align: center;
+      text-align: center;
       .el-button{
-        width: 80%;
+        width: 90%;
       }
     }
   }

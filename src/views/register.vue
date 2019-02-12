@@ -45,7 +45,7 @@
     <el-row :gutter="20" >
       <el-col :span="16" :offset="4">
         <div class="grid-content">
-          <el-button type="primary" :loading="isloading" @click="submit">注册</el-button>
+          <el-button type="primary" :disabled="isDisabled" :loading="isloading" @click="submit">注册</el-button>
         </div>
       </el-col>
     </el-row>
@@ -65,20 +65,29 @@ export default {
       isloading: false
     }
   },
+  computed:{
+    isDisabled () {
+      let checkmobile = FORM.checkmobile(this.username)==true,
+          checkpwd = FORM.checkpwd(this.password)==true,
+          checkrepwd = !!this.repassword!='',
+          checkequal = Boolean(this.password==this.repassword);
+      return !(checkmobile && checkpwd&&checkrepwd&&checkequal)
+    }
+  },
   methods: {
     submit () {
-      if (FORM.checkmobile(this.username)!=true)return;
-      if (this.password=='') return this.$message.error('请输入密码');
-      if (this.repassword=='') return this.$message.error('请输入密码');
-      if (this.repassword!=this.repassword) return this.$message.error('两次密码不一致');
-      this.register()
+      if (FORM.checkmobile(this.username)!=true)return this.$message.error(FORM.checkmobile(this.username));
+      if (FORM.checkpwd(this.password)!=true)return this.$message.error(FORM.checkpwd(this.password));
+      if (this.repassword=='') return this.$message.error('请输入确认密码');
+      if (this.password!==this.repassword) return this.$message.error('两次密码不一致');
+      this.register();
     },
     register () {
       this.isloading = true;
       let loading = this.$loading();
       API.register({user_name:this.username,password:this.password}).then(()=>{
          this.$message('注册成功');
-         this.$router.push({name: 'login'})
+         this.$router.push({name: 'login'});
       }).catch(err=>{
          this.$message.error(err.msg);
       }).finally(()=>{
@@ -89,7 +98,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #register{
     width: 500px;
     height: 300px;

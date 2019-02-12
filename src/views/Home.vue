@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    我是Home
+    <!-- 我是Home
     <div class="" @click="$router.push({name: 'main.container'})">
       跳转main.aside
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -13,9 +13,7 @@ console.log(API)
 export default {
   name: 'home',
   created () {
-    // API.getTradings().then(res => {
-    //   console.log(res, 'res')
-    // })
+    this.$router.push({name: 'main.container'})
   }
 }
 </script>

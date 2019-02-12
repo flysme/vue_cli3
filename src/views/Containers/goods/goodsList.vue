@@ -10,7 +10,7 @@
             placeholder="搜索"
             ></el-input>
             <div class="search-btn">
-              <el-button size="small" type="primary" plain @click="searchFilter">筛选</el-button>
+              <el-button size="small" type="primary" :disabled="cansearchFilter" plain @click="searchFilter">筛选</el-button>
             </div>
           </div>
           <div class="grid-content search-cats-main sys-flex">
@@ -22,7 +22,7 @@
       </el-col>
       <el-col :span="3">
          <div class="btn-add sys-flex">
-           <el-button size="small" type="primary"  @click="add">新增商品</el-button>
+           <el-button size="small" type="primary" :disabled="!storeStatus.canhandle"  @click="add">新增商品</el-button>
          </div>
       </el-col>
     </el-row>
@@ -38,11 +38,11 @@
         width="33">
       </el-table-column>
       <el-table-column
-        prop="images"
+        prop="img"
         label="商品图"
         width="100">
         <template slot-scope="scope">
-          <img :src="scope.row.image" width="50" height="50"/>
+          <img :src="scope.row.img" width="50" height="50"/>
         </template>
       </el-table-column>
       <el-table-column
@@ -61,7 +61,7 @@
       </el-table-column>
       <el-table-column
         prop="create_time"
-        label="上架时间">
+        label="创建时间">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -80,7 +80,7 @@
       </el-table-column>
     </el-table>
     <el-row>
-      <el-col :span="6">
+      <el-col :span="8">
             <el-button size="mini" :disabled="disabled" @click="changeProducts(1)">上架</el-button>
             <el-button size="mini" :disabled="disabled" @click="changeProducts(0)">下架</el-button>
             <el-button size="mini" :disabled="disabled" @click="changeProducts(2)">删除</el-button>
@@ -91,6 +91,7 @@
 
 <script>
 import UTILS from '@/utils/utils'
+import config from '@/config/config'
 import { mapState } from 'vuex'
 export default {
   name: 'goodList',
@@ -106,18 +107,25 @@ export default {
     }
   },
   computed: {
+    cansearchFilter () {
+      return this.searchvalue=='';
+    },
     resetResponData () {
       let goodList = this.$store.state.product.goodList;
-      console.log(goodList,'goodList')
       let resetData = goodList.map(item => {
          item.ident_name = item.status==1 ? '已上架' : '已下架'
+         item.img = config.Imghost + item.img;
          return item;
       })
+      console.log(resetData,'resetData',config.Imghost)
       return resetData
     },
     ...mapState('product_category',{
         // 箭头函数可使代码更简练
         categorysList: state => state.categorysList
+    }),
+    ...mapState('login',{
+        storeStatus:state => state.storeStatus,
     })
   },
   created () {
@@ -142,7 +150,7 @@ export default {
     /*获取商品分类*/
     getCategorys () {
       let data = {
-        store_id:this.userinfo.store_info[0]['_id']
+        store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id']
       }
       this.$store.dispatch('product_category/GET_CATEGORYS',data)
     },
@@ -153,7 +161,7 @@ export default {
     /*获取商品*/
     getProducts () {
       let data = {
-        store_id:this.userinfo.store_info[0]['_id'],
+        store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id'],
       }
       if (this.searchvalue!='') {
         data.product_name=this.searchvalue;
@@ -162,9 +170,11 @@ export default {
         data.catesgory_id=this.catesgory_id;
       }
       this.loading = true;
-      this.$store.dispatch('product/LOAD_GOODSLIST',data).then(res=>{
+      this.$store.dispatch('product/LOAD_GOODSLIST',data).then(()=>{
         this.loading = false;
-      });
+      }).finally(()=>{
+        this.isloading = false;
+      })
     },
     editGoods (item) {
       this.$router.push({path: `/editgoods/${item.product_id}`});
@@ -182,7 +192,7 @@ export default {
     /*更新商品状态*/
     updateProductstatus (product_ids,status) {
       let data = {status,product_ids};
-      this.$store.dispatch('product/UPDATE_GOODSITEM',data).then(res=>{
+      this.$store.dispatch('product/UPDATE_GOODSITEM',data).then(()=>{
         this.getProducts();
       });
     },
@@ -195,7 +205,7 @@ export default {
       this.$message('click on item ' + command);
     },
     add () {
-      this.$router.push({name: 'main.container.goods.editgoods'});
+      this.$router.push({name: 'main.container.goods.addgoods'});
     }
     // ...mapActions({
     //   add: 'goodsList/LOAD_GOODSLIST'  /*新增商品*/
@@ -203,7 +213,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #goodList{
     background-color: #FFF;
     .search-main{
