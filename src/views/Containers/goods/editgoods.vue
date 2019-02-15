@@ -115,6 +115,7 @@
                      size="mini"
                      placeholder="属性值"
                      autofocus="true"
+                     :disabled="attr.key==''"
                      v-model="attr.value[idx]">
                    </el-input>
                    <i class="el-icon-vue-xianshi_quxiaotianchong abs del-icon" @click="delSkuRowVal(index,idx)"></i>
@@ -410,9 +411,9 @@ export default {
       if (this.products_desc == '') {
         return this.$message.error('请填写商品描述');
       }
-      if (this.products_image == '') {
-        return this.$message.error('请填写商品主图');
-      }
+      // if (this.products_image == '') {
+      //   return this.$message.error('请填写商品主图');
+      // }
       if (this.products_unit == '') {
         return this.$message.error('请填写库存单位');
       }

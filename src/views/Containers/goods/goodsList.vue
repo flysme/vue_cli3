@@ -41,9 +41,7 @@
         prop="img"
         label="商品图"
         width="100">
-        <template slot-scope="scope">
-          <img :src="scope.row.img" width="50" height="50"/>
-        </template>
+        <img slot-scope="scope" :src="scope.row.img" width="50" height="50"/>
       </el-table-column>
       <el-table-column
         prop="title"
@@ -114,7 +112,7 @@ export default {
       let goodList = this.$store.state.product.goodList;
       let resetData = goodList.map(item => {
          item.ident_name = item.status==1 ? '已上架' : '已下架'
-         item.img = config.Imghost + item.img;
+         item.img = config.Imghost + (item.img!='' ?  item.img : config.goodsIcon)
          return item;
       })
       console.log(resetData,'resetData',config.Imghost)
@@ -172,12 +170,14 @@ export default {
       this.loading = true;
       this.$store.dispatch('product/LOAD_GOODSLIST',data).then(()=>{
         this.loading = false;
+      }).catch(err=>{
+        this.isloading = false;
       }).finally(()=>{
         this.isloading = false;
       })
     },
     editGoods (item) {
-      this.$router.push({path: `/editgoods/${item.product_id}`});
+      this.$router.push({path: `/goods/editgoods/${item.product_id}`});
     },
     /*点击更多*/
     setItemhandle(item) {

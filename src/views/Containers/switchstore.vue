@@ -163,13 +163,13 @@ export default {
       width: 100%;
       left: 0;
       bottom: 20px;
+      margin:0;
       justify-content: center;
       .el-button{
-        width: 20%;
+        width: 20%!important;
+        flex:0;
         border-radius: 0;
       }
     }
   }
-
-
 </style>

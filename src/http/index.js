@@ -8,7 +8,7 @@ import { Message } from 'element-ui';
 
 const http = axios.create({
   // baseURL: Baseurl,
-  timeout: 1000,
+  timeout: 600,
   headers: {
        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
    }
@@ -75,7 +75,6 @@ http.interceptors.response.use(res => {
       return Promise.resolve(res.data);
     }
  }, err => {
-     console.log(err, 'err--------')
     if (err && err.response) {
       switch (err.response.status) {
         case 400:

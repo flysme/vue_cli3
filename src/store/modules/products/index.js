@@ -16,8 +16,11 @@ const goodsList = {
             commit(GETGOODSLIST,res.data.products);
             resolve();
           } else {
+            console.log(res,'res---------')
             reject(res);
           }
+        }).catch(err=>{
+            reject(err);
         })
       })
     },

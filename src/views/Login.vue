@@ -29,7 +29,7 @@
     <el-row :gutter="20" >
       <el-col :span="16" :offset="4">
         <div class="grid-content">
-          <el-button type="primary" :disabled="isDisabled" :loading="isloading" @click="submit">登录</el-button>
+          <el-button type="primary" :disabled="isDisabled" :loading="isloading" @click="submit">{{btntext}}</el-button>
         </div>
       </el-col>
     </el-row>
@@ -51,7 +51,9 @@ export default {
   data () {
     return {
       username: '',
+      btntext:'登录',
       password: '',
+      loginCount:0,
       isloading: false
     }
   },
@@ -71,6 +73,7 @@ export default {
       this.login();
     },
     login () {
+      if (this.loginCount>3)return;
       this.isloading = true;
       let loading = this.$loading();
       this.$store.dispatch('login/LOAD_LOGIN',{user_name:this.username,password:this.password}).then(res=>{
@@ -79,10 +82,30 @@ export default {
         } else {
           this.$router.push({name: 'apply'})
         }
+      }).catch(err=>{
+        this.checkLoginBtn();
       }).finally(()=>{
         loading.close();
         this.isloading = false;
       })
+    },
+    checkLoginBtn () {
+      if (this.loginCount>=3) {
+        this.$message.error('请10秒后再试~');
+        let time = 10;
+        let timer = setInterval(()=>{
+          if (time <=0){
+            console.log(timer,'timer')
+            clearInterval(timer)
+            this.loginCount = 0;
+            this.btntext = '登录'
+            return;
+          };
+          this.btntext = '等待'+time+'秒后再试';
+          time--;
+        },1000)
+      }
+      this.loginCount++;
     }
   }
 }
