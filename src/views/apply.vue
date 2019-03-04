@@ -5,6 +5,16 @@
           <div class="sys-flex form-item">
             <el-col :span="5">
               <div class="demo-input-suffix">
+                店铺主图:
+              </div>
+            </el-col>
+            <el-col :span="16">
+              <upLoad @success="uploadsuccess" :img="store_image"></upLoad>
+            </el-col>
+          </div>
+          <div class="sys-flex form-item">
+            <el-col :span="5">
+              <div class="demo-input-suffix">
                 店铺名称:
               </div>
             </el-col>
@@ -54,6 +64,7 @@
 <script>
 import addressList from '@/config/address';
 import searchMap from '@/components/map';
+import upLoad from '@/components/upLoad'
 export default {
   name: 'apply',
   data () {
@@ -63,10 +74,16 @@ export default {
       addressList: addressList,
       storename:'',
       location:'',
-      showMap:false
+      showMap:false,
+      store_image:''
     }
   },
   methods: {
+    uploadsuccess (res) {
+      if (res.data.file) {
+        this.store_image = res.data.file;
+      }
+    },
     closeDialog (location) {
       this.showMap = false;
       if (location) {
@@ -78,6 +95,9 @@ export default {
       this.address = address;
     },
     bindapply () {
+      if (this.store_image =='') {
+        return this.$message.error('请输入店铺主图');
+      }
       if (this.storename =='') {
         return this.$message.error('请输入店铺名称');
       }
@@ -89,9 +109,11 @@ export default {
       }
       let data = {
         store_name:this.storename,
+        store_image:this.store_image,
         address:this.address.join('/'),
         street:this.street,
-        geo:[this.location.lng,this.location.lat],
+        lng:this.location.lng,
+        lat:this.location.lat,
         privileges: 3, /*店长注册*/
       }
       this.$store.dispatch('apply/SETSTOREINFO',data).then(()=>{
@@ -101,7 +123,8 @@ export default {
     }
   },
   components: {
-    searchMap
+    searchMap,
+    upLoad
   }
 }
 </script>
@@ -121,7 +144,8 @@ export default {
   }
   .apply-main{
     width: 400px;
-    height: 270px;
+    height: 320px;
+    padding:10px 0;
     flex-direction: column;
     box-sizing: border-box;
     align-items: center;

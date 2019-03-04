@@ -51,6 +51,14 @@
   display: flex;
 }
 
+.align-center{
+  align-items: center;
+}
+
+.flex-wrap{
+  flex-wrap: wrap;
+}
+
 .fixed{
   position: fixed;
 }
@@ -61,4 +69,8 @@
 
 .abs{
   position: absolute;
+}
+
+input,button{
+  border-radius: 0!important;
 }

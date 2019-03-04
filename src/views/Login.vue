@@ -98,7 +98,7 @@ export default {
             console.log(timer,'timer')
             clearInterval(timer)
             this.loginCount = 0;
-            this.btntext = '登录'
+            this.btntext = '登录';
             return;
           };
           this.btntext = '等待'+time+'秒后再试';

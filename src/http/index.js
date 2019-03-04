@@ -184,6 +184,7 @@ const URL = {
   get_products_details: 'api/getProductDetail.php', //获取商品详情
   updateProductStatus: 'api/updateProduct.php', //更新商品状态
   editProducts: 'api/editProductDetail.php', //编辑商品信息
+  storeSetting: 'api/store_setting.php', //店铺设置
 }
 
 /*
@@ -237,6 +238,15 @@ const API = {
   },
   deleteProductStatus: (params)=> {
     return fetchDelete(URL.updateProductStatus, params)
+  },
+  getStoreSetting: (params)=> {
+    return fetchGet(URL.storeSetting, params)
+  },
+  setStoreSetting: (params)=> {
+    return fetchPost(URL.storeSetting, params)
+  },
+  updateStoreSetting: (params)=>{
+    return fetchPut(URL.storeSetting, params)
   }
 }
 

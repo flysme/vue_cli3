@@ -48,6 +48,12 @@ const route = [
            meta: { requiresAuth: true }
         },
         {
+           name:'main.container.store_setting',
+           path: '/store_setting',
+           component: ()=>(import('@/views/Containers/store_setting')),
+           meta: { requiresAuth: true }
+        },
+        {
            name:'main.container.goods.goodsList',
            path: '/goods/goodsList',
            component: ()=>(import('@/views/Containers/goods/goodsList')),
