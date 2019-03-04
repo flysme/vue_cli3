@@ -16,6 +16,7 @@
               </template>
               <el-menu-item-group>
                 <el-menu-item index="/overview">概况</el-menu-item>
+                <el-menu-item index="/store_setting">店铺设置</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2">
@@ -31,6 +32,7 @@
                 <el-menu-item index="/order/orderList">我的订单</el-menu-item>
                 <el-menu-item index="/order/orderoverview">订单概览</el-menu-item>
                 <el-menu-item index="/order/orderevaluate">评价管理</el-menu-item>
+                <el-menu-item index="/order/orderevaluate">售后管理</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
           </el-menu>
