@@ -19,7 +19,7 @@
         class="avatar-uploader sys-flex"
         :on-exceed="handleExceed"
         :limit="1"
-        action="https://www.20130510.cn/api/upLoad.php"
+         action="https://www.20130510.cn/api/upLoad.php"
         :show-file-list="false"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload">
@@ -34,7 +34,8 @@ export default {
   name: 'upLoad',
   data() {
       return {
-        imageUrl: []
+        imageUrl: [],
+        imgQuality: 0.5 //压缩图片的质量
       };
   },
   props:{
@@ -49,16 +50,44 @@ export default {
     }
   },
   methods: {
+    dataURItoBlob(dataURI, type) {
+     let binary = atob(dataURI.split(',')[1]);
+     let array = [];
+     for(var i = 0; i < binary.length; i++) {
+      array.push(binary.charCodeAt(i));
+     }
+     return new Blob([new Uint8Array(array)], {type: type});
+    },
     handleAvatarSuccess(res, file) {
       this.imageUrl.push(URL.createObjectURL(file.raw));
       this.$emit('success',res);
     },
-    beforeAvatarUpload(file) {
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
+    beforeAvatarUpload(param) {
+      const imgSize = param.size / 1024 / 1024;
+      const isLt2M = imgSize < 2;
+      //对图片进行压缩
+       if(imgSize > 0.2) {
+        const _this = this;
+        return new Promise(resolve => {
+          const reader = new FileReader();
+          const image = new Image();
+          image.onload = (imageEvent) => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const width = image.width * _this.imgQuality
+            const height = image.height * _this.imgQuality
+            canvas.width = width;
+            canvas.height = height;
+            context.clearRect(0, 0, width, height);
+            context.drawImage(image, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL(param.type);
+            const blobData = _this.dataURItoBlob(dataUrl, param.type);
+            resolve(blobData)
+          }
+         reader.onload = (e => { image.src = e.target.result; });
+         reader.readAsDataURL(param);
+        })
       }
-      return isLt2M;
     },
     handleExceed (files, fileList) {
       console.log(fileList,'fileList')

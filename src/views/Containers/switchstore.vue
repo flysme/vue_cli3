@@ -11,6 +11,7 @@
           <div class="sys-flex store-list">
               <div :class="['store-item','sys-flex','rel',item.active ?'active':'']" @click="changeStore(item._id)" v-for="(item,index) in storeInfo" :key="index">
                   <div class="store-icon">
+                    <!-- <img :src="item.src" alt=""> -->
                     <i class="el-icon-vue-dian"></i>
                   </div>
                   <div class="store-name">{{item.name}}</div>
@@ -26,6 +27,7 @@
 </template>
 <script>
 import UTILS from '@/utils/utils'
+import config from '@/config/config'
 export default {
   name: 'switchStore',
   data () {
@@ -47,7 +49,7 @@ export default {
   computed :{
     /*是否禁用提交*/
     isDisabled () {
-      return (this.userInfo.store_id || this.$store.state.login.userInfo.store_id) == this.switch_id
+      return (this.userInfo&& this.userInfo.store_id || this.$store.state.login.userInfo&&this.$store.state.login.userInfo.store_id) == this.switch_id
     }
   },
   methods:{

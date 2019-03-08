@@ -11,6 +11,7 @@
           <el-input
             type="number"
             size="mini"
+            :disabled="!storeStatus.canhandle"
             placeholder="请输入配送金额"
             v-model="delivery_price">
           </el-input>
@@ -28,6 +29,7 @@
           <el-input
             type="number"
             size="mini"
+            :disabled="!storeStatus.canhandle"
             placeholder="请输入起送金额"
             v-model="mini_delivery_price">
           </el-input>
@@ -49,16 +51,18 @@
                   type="number"
                   placeholder="购买金额"
                   min="1"
+                  :disabled="!storeStatus.canhandle"
                   v-model="buy_price">
                 </el-input>
                 <el-input
                   size="mini"
                   type="number"
                   min="1"
+                  :disabled="!storeStatus.canhandle"
                   placeholder="优惠金额"
                   v-model="discount_price">
                 </el-input>
-                <el-button type="primary"  size="mini" @click="saveDiscounts">保存</el-button>
+                <el-button type="primary" :disabled="!storeStatus.canhandle"  size="mini" @click="saveDiscounts">保存</el-button>
               </div>
               <div class="discount-box-list flex-wrap sys-flex">
                   <div class="discount-item f-6 rel" v-for="(item,index) in discountList" :key="index">
@@ -81,6 +85,7 @@
         <el-col :span="10" class="sys-flex align-center">
           <el-time-select
            placeholder="起始时间"
+           :disabled="!storeStatus.canhandle"
            v-model="business_start_times"
            :picker-options="{
              start: '08:30',
@@ -91,6 +96,7 @@
          <span>&nbsp;-&nbsp;</span>
          <el-time-select
            placeholder="结束时间"
+           :disabled="!storeStatus.canhandle"
            v-model="business_end_times"
            :picker-options="{
              start: '08:30',
@@ -105,8 +111,8 @@
     <el-row>
       <div class="submit-btn">
         <el-col>
-          <el-button type="primary" v-if="!isEdit" :disabled="!cansaved" :loading="Loading"  size="mini" @click="save">保存</el-button>
-          <el-button type="primary" v-else :disabled="!cansaved" :loading="Loading"  size="mini" @click="updateSetting">更新</el-button>
+          <el-button type="primary" v-if="!isEdit" :disabled="!cansaved || !storeStatus.canhandle" :loading="Loading"  size="mini" @click="save">保存</el-button>
+          <el-button type="primary" v-else :disabled="!cansaved || !storeStatus.canhandle" :loading="Loading"  size="mini" @click="updateSetting">更新</el-button>
         </el-col>
       </div>
     </el-row>
@@ -138,7 +144,10 @@ export default {
         && (this.mini_delivery_price!='' && this.mini_delivery_price>0)
         && (this.business_start_times!='' && this.business_start_times && this.business_end_times!='' && this.business_end_times)
       )
-    }
+    },
+    ...mapState('login',{
+        storeStatus:state => state.storeStatus,
+    })
   },
   created () {
     this.initLoadSettingInfo();
@@ -147,12 +156,12 @@ export default {
     initLoadSettingInfo () {
       let loading = this.$loading();
       this.$store.dispatch('store_setting/LOAD_STORESETTING',{store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id']}).then(res=>{
-          this.isEdit  = true;
+          this.isEdit  = res.delivery_price && res.start_delivery_price;
           this.delivery_price = res.delivery_price;
           this.mini_delivery_price = res.start_delivery_price;
           this.business_start_times = res.business_start_times;
           this.business_end_times = res.business_end_times;
-          this.discountList = res.discounts;
+          this.discountList = res.discounts || [];
       }).finally(()=>{
         loading.close();
       })

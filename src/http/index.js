@@ -178,6 +178,7 @@ const URL = {
   switchUserStore: 'api/switchUserStore.php', //切换店铺
   getuserStore: 'api/getuserStore.php', //获取店铺状态
   create_category: 'api/edit_category.php', //新建商品分类
+  delete_catesgory: 'api/deleteCatesgorys.php', //删除商品分类
   get_category: 'api/getProductcategory.php', //获取商品分类
   create_products: 'api/create_product.php', //创建商品
   get_products: 'api/getproductList.php', //获取商品
@@ -216,7 +217,7 @@ const API = {
     return fetchPut(URL.create_category, params)
   },
   delete_category: (params)=> {
-    return fetchDelete(URL.create_category, params)
+    return fetchPut(URL.delete_catesgory, params)
   },
   get_category: (params)=> {
     return fetchGet(URL.get_category, params)
