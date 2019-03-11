@@ -88,9 +88,9 @@
            :disabled="!storeStatus.canhandle"
            v-model="business_start_times"
            :picker-options="{
-             start: '08:30',
+             start: '05:30',
              step: '00:15',
-             end: '18:30'
+             end: '23:30'
            }">
          </el-time-select>
          <span>&nbsp;-&nbsp;</span>
@@ -99,12 +99,29 @@
            :disabled="!storeStatus.canhandle"
            v-model="business_end_times"
            :picker-options="{
-             start: '08:30',
+             start: '05:30',
              step: '00:15',
-             end: '18:30',
+             end: '23:30',
              minTime: business_start_times
            }">
          </el-time-select>
+        </el-col>
+      </div>
+    </el-row>
+    <el-row>
+      <div class="sys-flex form-item">
+        <el-col :span="3">
+          <div class="demo-input-suffix">
+            是否打烊:
+          </div>
+        </el-col>
+        <el-col :span="10" class="sys-flex align-center">
+          <el-switch
+            style="display: block"
+            v-model="isbusiness"
+            active-color="#13ce66"
+            >
+          </el-switch>
         </el-col>
       </div>
     </el-row>
@@ -134,6 +151,7 @@ export default {
       buy_price:'',
       discountList:[],
       isEdit:false,
+      isbusiness:0,
       Loading:false
     }
   },
@@ -161,6 +179,7 @@ export default {
           this.mini_delivery_price = res.start_delivery_price;
           this.business_start_times = res.business_start_times;
           this.business_end_times = res.business_end_times;
+          this.isbusiness = !res.business_status;
           this.discountList = res.discounts || [];
       }).finally(()=>{
         loading.close();
@@ -194,6 +213,7 @@ export default {
         discounts:this.discountList || '',
         business_start_times:this.business_start_times,
         business_end_times:this.business_end_times,
+        business_status:Number(!this.isbusiness),
       }
       this.Loading = true;
       this.$store.dispatch('store_setting/SET_SETOREBUSINESS',data).then(res=>{
@@ -215,6 +235,7 @@ export default {
           discounts:this.discountList || '',
           business_start_times:this.business_start_times,
           business_end_times:this.business_end_times,
+          business_status:Number(!this.isbusiness),
         }
         this.$store.dispatch('store_setting/UPDATE_SETOREBUSINESS',data).then(res=>{
           this.$message({message: '更新成功',center: true});
