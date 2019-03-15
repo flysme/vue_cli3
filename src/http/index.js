@@ -2,37 +2,34 @@ import axios from 'axios';
 import qs from 'qs';
 import router from '@/router';
 import { Message } from 'element-ui';
+import UTILS from '@/utils/utils'
 // https://api.freshxiaomei.com/v1/trading/community/groupbuy/5c20d59c94303925bc0eedab/tradings
 // const Baseurl = 'https://www.easy-mock.com/mock/5c22db120639a3144b2f0dba/api'
-// const Baseurl = 'http://www.vuetext.com:8084'
+// const Baseurl = 'http://20130510/api/'
 
 const http = axios.create({
   // baseURL: Baseurl,
   timeout: 600,
   headers: {
-       'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+       'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;',
+       'Authentication-Token':UTILS.storage.get('Authentication-Token')
    }
-   // headers: {'X-Custom-Header': 'foobar'
 })
 
 
 //http request 拦截器
-http.interceptors.request.use(
-  config => {
-    config.headers = {
-      'Content-Type':'application/x-www-form-urlencoded;charset=utf-8'
-    }
-    return config;
-  },
-  error => {
-    return Promise.reject(error);
-  }
-);
+// http.interceptors.request.use(
+//   error => {
+//     return Promise.reject(error);
+//   }
+// );
 //http request 响应拦截器即异常处理
 http.interceptors.response.use(res => {
+    if (res.headers && res.headers.hasOwnProperty('authentication-token')) {
+      UTILS.storage.set('Authentication-Token',res.headers['authentication-token']);
+      axios.defaults.headers.common['Authentication-Token'] = res.headers['authentication-token'];
+    }
     if (res.data.status > 0) {
-      console.log(res.data);
-
       switch (res.data.status) {
         case 401:
           res.data.msg = '未授权，请重新登录';
@@ -133,7 +130,8 @@ const stringify = (data)=>{
 * @params url
 * @params params
 */
-const fetchGet = (url, params={})=> {
+const fetchGet = (currenturl, data={})=> {
+  let { url,params} = replaceUrl(currenturl,data);
   return http.get(url, {params})
 }
 
@@ -143,8 +141,9 @@ const fetchGet = (url, params={})=> {
 * @params url
 * @params data
 */
-const fetchPost = (url, data={})=> {
-  return http.post(url, stringify(data))
+const fetchPost = (currenturl, data={})=> {
+  let { url,params} = replaceUrl(currenturl,data);
+  return http.post(url, stringify(params))
 }
 
 /*
@@ -153,8 +152,9 @@ const fetchPost = (url, data={})=> {
 * @params url
 * @params data
 */
-const fetchPut = (url, data={})=> {
-  return http.put(url, stringify(data))
+const fetchPut = (currenturl, data={})=> {
+  let { url,params} = replaceUrl(currenturl,data);
+  return http.put(url, stringify(params))
 }
 
 /*
@@ -163,29 +163,46 @@ const fetchPut = (url, data={})=> {
 * @params url
 * @params data
 */
-const fetchDelete = (url, data={})=> {
-  return http.delete(url, {data:stringify(data)})
+const fetchDelete = (currenturl, data={})=> {
+  let { url,params} = replaceUrl(currenturl,data);
+  return http.delete(url, {data:stringify(params)})
 }
 
 /*
 * 请求url
 */
 const URL = {
-  login: 'api/login.php', //登录
-  loginout: 'api/loginout.php', //退出登录
-  register: 'api/register.php', //注册
-  applystore: 'api/apply_store.php', //开通店铺
-  switchUserStore: 'api/switchUserStore.php', //切换店铺
-  getuserStore: 'api/getuserStore.php', //获取店铺状态
-  create_category: 'api/edit_category.php', //新建商品分类
-  delete_catesgory: 'api/deleteCatesgorys.php', //删除商品分类
-  get_category: 'api/getProductcategory.php', //获取商品分类
-  create_products: 'api/create_product.php', //创建商品
-  get_products: 'api/getproductList.php', //获取商品
-  get_products_details: 'api/getProductDetail.php', //获取商品详情
-  updateProductStatus: 'api/updateProduct.php', //更新商品状态
-  editProducts: 'api/editProductDetail.php', //编辑商品信息
-  storeSetting: 'api/store_setting.php', //店铺设置
+  login: 'api/login', //登录
+  loginout: 'api/loginout', //退出登录
+  register: 'api/register', //注册
+  applystore: 'api/apply_store', //开通店铺
+  switchUserStore: 'api/switchUserStore', //切换店铺
+  getuserStore: 'api/getuserStore', //获取店铺状态
+  create_category: 'api/{store_id}/create_catesgorys', //新建商品分类
+  edit_category: 'api//edit_category/{catesgory_id}', //编辑商品分类
+  delete_catesgory: 'api/deleteCatesgorys/{catesgory_id}', //删除商品分类
+  get_category: 'api/{store_id}/getProductcategory', //获取商品分类
+  create_products: 'api/create_product', //创建商品
+  get_products: 'api/{store_id}/getProductList', //获取商品
+  get_products_details: 'api/getProductDetail/{product_id}', //获取商品详情
+  updateProductStatus: 'api/updateProduct', //更新商品状态
+  editProducts: 'api/editProductDetail', //编辑商品信息
+  storeSetting: 'api/store_setting', //店铺设置
+}
+
+
+const replaceUrl = (url,params)=>{
+    if (Object.keys(params).length) {
+        for (let i in params) {
+            let reg =  new RegExp("{" + i + "}?");
+            if (url.match(reg)) {
+               url = url.replace(reg, params[i])
+               delete params[i];
+               continue;
+            }
+        }
+    }
+    return { url,params};
 }
 
 /*
@@ -210,11 +227,11 @@ const API = {
   getuserStore :()=> {
     return fetchGet(URL.getuserStore)
   },
-  create_category: (params)=> {
+  create_category:(params)=> {
     return fetchPost(URL.create_category, params)
   },
   update_category: (params)=> {
-    return fetchPut(URL.create_category, params)
+    return fetchPut(URL.edit_category, params)
   },
   delete_category: (params)=> {
     return fetchPut(URL.delete_catesgory, params)

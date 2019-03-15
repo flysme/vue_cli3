@@ -105,27 +105,28 @@
                 size="mini"
                 placeholder="属性名"
                 v-model="attr.key"
+                :disabled="isEditSku"
                 >
               </el-input>
               <div class="attr-n-line"></div>
               <div class="attr-value-main sys-flex">
-                 <div class="rel"  v-if="attr.value.length" v-for="(items,idx) in attr.value" :key="idx">
+                 <div class="rel" v-if="attr.value.length" v-for="(items,idx) in attr.value" :key="idx">
                    <el-input
                      width="10px"
                      size="mini"
                      placeholder="属性值"
                      autofocus="true"
-                     :disabled="attr.key==''"
+                     :disabled="attr.key=='' || isEditSku"
                      v-model="attr.value[idx]">
                    </el-input>
-                   <i class="el-icon-vue-xianshi_quxiaotianchong abs del-icon" @click="delSkuRowVal(index,idx)"></i>
+                   <i class="el-icon-vue-xianshi_quxiaotianchong abs del-icon" v-if="product_id==''" @click="delSkuRowVal(index,idx)"></i>
                  </div>
-                  <div class="append-attr f-6" @click="setAttrValue(index)">
+                  <div class="append-attr f-6" @click="setAttrValue(index)" v-if="!isEditSku">
                       +添加
                   </div>
               </div>
             </div>
-            <div @click="setSku">
+            <div @click="setSku" v-if="!isEditSku">
               <el-input
                 :disabled="isDisabled"
                 width="20px"
@@ -156,7 +157,7 @@
             </div>
             <div class="sku-table-body  sys-flex" v-for="(item,index) in newtableList" :key="index">
                 <div class="sku-t-td" :style="compuWidth(item)" v-for="(current,idx) in item" :key="idx" >
-                    <el-input type="number" min="1" v-if="current.k=='num' || current.k=='price'" @blur="checkSkuReg(index,idx,current.v)" v-model="current.v"></el-input>
+                    <el-input type="number" min="1" v-if="current.k=='num' || current.k=='price' || current.k=='cost_price'" @blur="checkSkuReg(index,idx,current.v)" v-model="current.v" :disabled="isEditSku"></el-input>
                     <span v-else>{{current.v}}</span>
                 </div>
             </div>
@@ -193,10 +194,11 @@ export default {
       num:'',
       skuSttrList:[],
       sku_unit:['只','瓶','袋','包','箱','盒','条','听','杯','本','把','对','台','克','两','斤','公斤'],
-      exthead:[{k:'num',n:'库存'},{k:'price',n:'零售价'}],
+      exthead:[{k:'num',n:'库存'},{k:'price',n:'零售价'},{k:'cost_price',n:'成本价'}],
       newtableList:[],
       headData:[], //sku头部名称
       details:{}, //详情数据
+      editSkuStatus:false, //编辑sku状态
     }
   },
   props:{
@@ -221,25 +223,27 @@ export default {
     isShowSkuList () {
       return this.skuSttrList && this.skuSttrList.length >= 1
     },
+    isEditSku () {
+      console.log(!this.product_id == '' && !this.editSkuStatus,"!this.product_id == '' && !this.editSkuStatus")
+      return !this.product_id == '' && !this.editSkuStatus
+    }
   },
   watch: {
   'skuSttrList':{
       handler (newSkuList,oldSkuList) {
         let table = [];
-        this.headData = [];
-        if (newSkuList && !newSkuList.length) {
-          this.newtableList = [];
-        }
+        this.headData = []; //头部显示数据
+        if (newSkuList && !newSkuList.length) this.newtableList = [];
         if (!oldSkuList || (oldSkuList && !oldSkuList.length))return;
         oldSkuList.forEach((item,index)=>{
           table.push(item.value);
           item.key && this.headData.push({k:`define-${index}`,n:item.key});
         })
-        this.headData.push(...this.exthead)
+        this.headData.push(...this.exthead);
         let newtable = ( table.length && UTILS.createTable(table) ) || [];
         if (newtable.length) {
-          let ev = [0,0];
-           let new_t = newtable.map(i =>(i = [...(i.reverse()),...ev]))
+          let skuProps = [0,0,0];
+           let new_t = newtable.map(i =>(i = [...(i.reverse()),...skuProps]))
            this.newtableList = [];
            new_t.forEach((current,index)=>{
              let value = [];
@@ -247,16 +251,14 @@ export default {
                value.push({
                  n:item.n, //名称
                  k:item.k, //属性名
-                 v:current[idx] //属性值
+                 v: current[idx] //属性值
                })
              })
-             // 属性值存在时进行更新
-             this.$set(this.newtableList,index,value);
+             // 属性值存在时进行更新 || 判断是否大于默认sku属性
+             this.headData.length > 3 && this.$set(this.newtableList,index,value);
            })
         }
-        if (this.product_id) {
-          this.updateSkuList();
-        }
+        if (this.product_id) this.updateSkuList();
       },
       deep: true    //深度监听
     }
@@ -270,6 +272,7 @@ export default {
       this.getCategorys();
       let promiseque = [this.getCategorys()];
       if (this.product_id) {
+        this.editSkuMessage();
         promiseque.push(this.getProductDetails())
       }
       let loading = this.$loading();
@@ -282,6 +285,9 @@ export default {
         loading.close();
       });
     },
+    editSkuMessage () {
+      this.$message('sku只有删除才可重新生成');
+    },
     /*更新sku规格列表*/
     updateSkuList () {
       let skus = this.details.skus;
@@ -289,17 +295,14 @@ export default {
       this.newtableList.forEach(item=>{
         let key = '';
         for (let i=0;i<item.length;i++) {
-          if ((item.length-1) -i>1) {
+          if ( (  (item.length-1) -i ) > 2 ) {
             key += item[i].v;
             continue;
           }
           if (key=='') return;
           let currentSkuItem  = skus[key];
-          if (item[i].k=="num" && currentSkuItem && currentSkuItem.num){
-            item[i].v = currentSkuItem.num;
-          }
-          if (item[i].k=="price" && currentSkuItem && currentSkuItem.price){
-            item[i].v = currentSkuItem.price;
+          if (currentSkuItem && currentSkuItem[item[i].k]){
+             item[i].v = currentSkuItem[item[i].k];
           }
         }
       })
@@ -308,7 +311,6 @@ export default {
       if (res.data.file) {
         this.products_image = res.data.file;
       }
-      console.log(res);
     },
     /*处理详情数据*/
     resetDetailData ([categorys,details]) {
@@ -375,7 +377,9 @@ export default {
     },
     /*删除sku 规格行*/
     delSkuRow (idx) {
+
       this.skuSttrList.splice(idx,1);
+      if (!this.skuSttrList.length)this.editSkuStatus = true;
     },
     // 计算sku item宽度
     compuWidth(item) {
@@ -387,7 +391,6 @@ export default {
     /*验证规格值是都为空*/
     checkSkuValue () {
       let flag = true;
-      console.log(this.newtableList,'this.newtableList')
       this.newtableList.forEach(item=>{
           item.forEach(currentItem=>{
               if (flag && currentItem.k=="num" && (currentItem.v=='' || currentItem.v<=0)) {
@@ -411,9 +414,9 @@ export default {
       if (this.products_desc == '') {
         return this.$message.error('请填写商品描述');
       }
-      // if (this.products_image == '') {
-      //   return this.$message.error('请填写商品主图');
-      // }
+      if (this.products_image == '') {
+        return this.$message.error('请填写商品主图');
+      }
       if (this.products_unit == '') {
         return this.$message.error('请填写库存单位');
       }

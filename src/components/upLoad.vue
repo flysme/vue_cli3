@@ -19,7 +19,7 @@
         class="avatar-uploader sys-flex"
         :on-exceed="handleExceed"
         :limit="1"
-         action="https://www.20130510.cn/api/upLoad.php"
+         action="https://20130510.cn/api/upLoad.php"
         :show-file-list="false"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload">
@@ -64,14 +64,13 @@ export default {
     },
     beforeAvatarUpload(param) {
       const imgSize = param.size / 1024 / 1024;
-      const isLt2M = imgSize < 2;
       //对图片进行压缩
        if(imgSize > 0.2) {
         const _this = this;
         return new Promise(resolve => {
           const reader = new FileReader();
           const image = new Image();
-          image.onload = (imageEvent) => {
+          image.onload = () => {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             const width = image.width * _this.imgQuality

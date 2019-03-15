@@ -36,7 +36,7 @@
         </el-col>
       </div>
     </el-row>
-    <el-row>
+    <!-- <el-row>
       <div class="sys-flex form-item">
         <el-col :span="3">
           <div class="demo-input-suffix">
@@ -74,7 +74,7 @@
         </el-col>
 
       </div>
-    </el-row>
+    </el-row> -->
     <el-row>
       <div class="sys-flex form-item">
         <el-col :span="3">
@@ -180,7 +180,7 @@ export default {
           this.business_start_times = res.business_start_times;
           this.business_end_times = res.business_end_times;
           this.isbusiness = !res.business_status;
-          this.discountList = res.discounts || [];
+          // this.discountList = res.discounts || [];
       }).finally(()=>{
         loading.close();
       })
@@ -199,7 +199,7 @@ export default {
       }
       this.buy_price = '';
       this.discount_price = '';
-      this.discountList.push({buy_price,discount_price})
+      // this.discountList.push({buy_price,discount_price})
     },
     /*删除优惠项*/
     deleteCurrentDiscount (index) {
@@ -210,7 +210,7 @@ export default {
         store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id'],
         delivery_price:this.delivery_price,
         start_delivery_price:this.mini_delivery_price,
-        discounts:this.discountList || '',
+        // discounts:this.discountList || '',
         business_start_times:this.business_start_times,
         business_end_times:this.business_end_times,
         business_status:Number(!this.isbusiness),
@@ -232,7 +232,7 @@ export default {
           store_id:this.userinfo.store_id || this.userinfo.store_info[0]['_id'],
           delivery_price:this.delivery_price,
           start_delivery_price:this.mini_delivery_price,
-          discounts:this.discountList || '',
+          // discounts:this.discountList || '',
           business_start_times:this.business_start_times,
           business_end_times:this.business_end_times,
           business_status:Number(!this.isbusiness),
