@@ -1,6 +1,13 @@
+/*
+ * @Description: 
+ * @Author: zhaofeixiang
+ * @LastEditors: zhaofeixiang
+ * @Date: 2018-10-08 17:41:58
+ * @LastEditTime: 2019-04-03 14:27:00
+ */
 
 module.exports = {
-  baseUrl:'./',
+  baseUrl:'/',
   devServer: {
     port: 8083,
     open: true,
