@@ -12,7 +12,7 @@ const http = axios.create({
   timeout: 600,
   headers: {
        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;',
-       'Authentication-Token':UTILS.storage.get('Authentication-Token')
+       'Authentication-Token':UTILS.storage.get('Authentication-Token'),
    }
 })
 
