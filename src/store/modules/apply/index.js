@@ -40,7 +40,7 @@ const apply = {
       UTILS.storage.set('userinfo',userinfo);
     }
   },
-  namespaced: true
+  namespaced: true,
 }
 
 export default apply
