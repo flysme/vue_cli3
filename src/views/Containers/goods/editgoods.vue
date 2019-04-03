@@ -119,9 +119,10 @@
                      :disabled="attr.key=='' || isEditSku"
                      v-model="attr.value[idx]">
                    </el-input>
-                   <i class="el-icon-vue-xianshi_quxiaotianchong abs del-icon" v-if="product_id==''" @click="delSkuRowVal(index,idx)"></i>
+                   <i class="el-icon-vue-xianshi_quxiaotianchong abs del-icon" v-if="!isEditSku" @click="delSkuRowVal(index,idx)"></i>
                  </div>
-                  <div class="append-attr f-6" @click="setAttrValue(index)" v-if="!isEditSku">
+                 <!-- sku属性值最多6级 -->
+                  <div class="append-attr f-6" @click="setAttrValue(index)" v-if="!isEditSku && attr.value.length < 6">
                       +添加
                   </div>
               </div>
@@ -167,8 +168,8 @@
     </el-row>
     <el-row>
       <el-col :span="24">
-        <div class="btn-save">
-           <el-button type="primary"  size="mini" :disabled="!storeStatus.canhandle" @click="saveGoodInfo">保存</el-button>
+        <div class="btn-save" :data='isEditSku'>
+           <el-button type="primary"  size="mini" :disabled="!storeStatus.canhandle||isEditSku" @click="saveGoodInfo">保存</el-button>
         </div>
       </el-col>
     </el-row>

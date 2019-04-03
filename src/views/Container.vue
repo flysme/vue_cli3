@@ -16,7 +16,7 @@
               </template>
               <el-menu-item-group>
                 <el-menu-item index="/overview">概况</el-menu-item>
-                <el-menu-item index="/store_setting">店铺设置</el-menu-item>
+                <el-menu-item index="/store_setting">设置</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2">

@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - "10"
+install: yarn
+
+script: npm run build
+
+deploy:
+  provider: pages
+  local_dir: ./build
+  skip_cleanup: true
+  github_token: $REPO_TOKEN
+  keep_history: true
+  on:
+    branch: master
