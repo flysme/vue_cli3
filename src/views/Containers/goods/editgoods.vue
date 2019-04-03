@@ -214,7 +214,7 @@ export default {
     }),
     ...mapState('login',{
         storeStatus:state => state.storeStatus,
-        currentStore: state => state.currentStore
+        currentStore: state => state.currentStore,
     }),
     /*最大sku规格设置为三层*/
     isDisabled () {
